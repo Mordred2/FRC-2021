@@ -464,29 +464,28 @@ public void autonomousPeriodic() {
 
   public void turnDegrees(double turnDegrees, double moveSpeedMagnitude){
     double turnState = 0;
-    double turnState1 = 0; 
-    double  leftMoveSpeed = 0;
-    double  rightMoveSpeed = 0;
+    double leftFinalTicks = 0; 
+    double rightFinalTicks = 0; 
     double ticksPerDegree = 0;
     double leftMotorValue = leftEncoder.getPosition();
-    double leftFinalTicks = ticksPerDegree * turnDegrees + leftMotorValue;
     double rightMotorValue = rightEncoder.getPosition();
-    double rightFinalTicks = ticksPerDegree * turnDegrees + rightMotorValue;
+    if(turnState == 0){
+    leftFinalTicks = ticksPerDegree * turnDegrees + leftMotorValue;
+    rightFinalTicks = ticksPerDegree * turnDegrees + rightMotorValue;
+      turnState++;
+  }
+    if(turnState == 1)
     if(leftFinalTicks != leftMotorValue){
       if(leftFinalTicks > leftMotorValue){
-        leftMoveSpeed = moveSpeedMagnitude;
+      leftMotors.set(moveSpeedMagnitude);
       }
-      else { leftMoveSpeed = -moveSpeedMagnitude;}
+      else { leftMotors.set(-moveSpeedMagnitude);}
     }
     if(rightFinalTicks != rightMotorValue){
       if(rightFinalTicks > rightMotorValue){
-        rightMoveSpeed = -moveSpeedMagnitude;
+        rightMotors.set(-moveSpeedMagnitude);
       }
-      else { rightMoveSpeed = moveSpeedMagnitude;}
-    }
-    if(false){
-    //kill me
-    leftMoveSpeed = moveSpeedMagnitude;
+      else { rightMotors.set(-moveSpeedMagnitude);}
     }
   }
 
