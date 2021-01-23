@@ -153,6 +153,7 @@ public void autonomousPeriodic() {
     SmartDashboard.putNumber("IndexCoder", indexPosition);
     SmartDashboard.putNumber("wanted index", wantedIndex);
     SmartDashboard.putNumber("ball count", ballCount);
+    SmartDashboard.putNumber("Left Enoder", leftEncoder.getPosition());
   //RUN PARTS OF THE ROBOT WHEN BUTTONS PRESSED
   countBalls();
   manualAim();
@@ -261,7 +262,7 @@ public void autonomousPeriodic() {
   }
 
   public void drive(double speed, double turn, boolean quickTurn) {
-    m_robotDrive.curvatureDrive(speed, turn, quickTurn);
+    m_robotDrive.curvatureDrive(speed, 0, false);
   }
 
   /*public void rangeSensor(){
@@ -410,6 +411,30 @@ public void autonomousPeriodic() {
     if(shootStick.getRawButtonPressed(11)) ballCount = ballCount -1;
   } 
 
+  public void turnDegrees(double turnDegrees, double moveSpeedMagnitude){
+    double turnState = 0;
+    double turnState1 = 0; 
+    double  leftMoveSpeed = 0;
+    double  rightMoveSpeed = 0;
+    double ticksPerDegree = 0;
+    double leftMotorValue = leftEncoder.getPosition();
+    double leftFinalTicks = ticksPerDegree * turnDegrees + leftMotorValue;
+    double rightMotorValue = rightEncoder.getPosition();
+    double rightFinalTicks = ticksPerDegree * turnDegrees + rightMotorValue;
+    if(leftFinalTicks != leftMotorValue){
+      if(leftFinalTicks > leftMotorValue){
+        leftMoveSpeed = moveSpeedMagnitude;
+      }
+      else { leftMoveSpeed = -moveSpeedMagnitude;}
+    }
+    if(rightFinalTicks != rightMotorValue){
+      if(rightFinalTicks > rightMotorValue){
+        rightMoveSpeed = -moveSpeedMagnitude;
+      }
+      else { rightMoveSpeed = moveSpeedMagnitude;}
+    }
+  }
+
   public void driveDistance(double driveDistance, double moveSpeedMagnitude){
     double wantedTicks = driveDistance*7;
     double moveSpeed = 0;
@@ -423,14 +448,6 @@ public void autonomousPeriodic() {
       moveSpeed = 0;
     leftMotors.set(moveSpeed);
     rightMotors.set(moveSpeed);
-  }
-
-  public void stage0(){
-    leftEncoder.setPosition(0);
-  }
-
-  public void stage1(){
-    driveDistance(7, .5);
   }
 
   public boolean collectorRun(){
