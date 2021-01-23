@@ -489,6 +489,32 @@ public void autonomousPeriodic() {
       else { rightMotors.set(-moveSpeedMagnitude);}
     }
   }
+  public void DriveInches(double DriveInches, double moveSpeedMagnitude){
+    double driveState = 0;
+    double rightDriveFinalTicks = 0; 
+    double leftDriveFinalTicks = 0; 
+    double ticksPerInch = 0;
+    double leftMotorValue = leftEncoder.getPosition();
+    double rightMotorValue = rightEncoder.getPosition();
+    if(driveState == 0){
+    rightDriveFinalTicks = ticksPerInch * DriveInches + rightMotorValue;
+    leftDriveFinalTicks = ticksPerInch * DriveInches + leftMotorValue;
+      driveState++;
+  }
+    if(driveState == 1)
+    if(leftDriveFinalTicks != leftMotorValue){
+      if(leftDriveFinalTicks > leftMotorValue){
+      leftMotors.set(moveSpeedMagnitude);
+      }
+      else { leftMotors.set(-moveSpeedMagnitude);}
+    }
+    if(rightDriveFinalTicks != rightMotorValue){
+      if(rightDriveFinalTicks > rightMotorValue){
+      rightMotors.set(moveSpeedMagnitude);
+      }
+      else { rightMotors.set(-moveSpeedMagnitude);}
+    }
+  }
 
   public void driveDistance(double driveDistance){
     double rotations = driveDistance / 7;
