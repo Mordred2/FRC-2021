@@ -81,7 +81,7 @@ public class Robot extends TimedRobot {
   public double kFF = 0; 
   public double kMaxOutput = 1; 
   public double kMinOutput = -1;
-
+  
   // LIMIT SWITCHES
   DigitalInput upSwitch, downSwitch;
 
@@ -114,6 +114,7 @@ public class Robot extends TimedRobot {
   public double ballCount;
 
   final Timer t = new Timer();
+  public double state = 0;
 
   @Override
   public void robotInit() {
@@ -511,5 +512,35 @@ public void autonomousPeriodic() {
     return shootStick.getRawButtonReleased(5);
   }
 
+  public void stateMachine(){
+ 
+    if(state == 0){
+      state++;
+    }
+    if(state == 1){
+      state++;
+    }
+    if(state == 2){
+      state++;
+    }
+    if(state == 3){
+      state++;
+    }
+    if(state == 4){
+      state++;
+    }
+    if(state == 5){
+      state++;
+    }
+    if(state == 6){
+      state++;
+    }
+    if(state == 7){
+      state++;
+    }
+    if(state == 8){
+      state++;
+    }
+  }
 
 }
