@@ -484,6 +484,10 @@ public void autonomousPeriodic() {
       }
       else { rightMoveSpeed = moveSpeedMagnitude;}
     }
+    if(false){
+    //kill me
+    leftMoveSpeed = moveSpeedMagnitude;
+    }
   }
 
   public void driveDistance(double driveDistance){
