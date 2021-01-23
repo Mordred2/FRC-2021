@@ -69,6 +69,19 @@ public class Robot extends TimedRobot {
   private CANEncoder leftEncoder = leftMotorF.getEncoder(EncoderType.kHallSensor, 1);
   private CANEncoder rightEncoder = rightMotorF.getEncoder(EncoderType.kHallSensor, 1);
 
+  //PID CONTROLLERS 
+  private CANPIDController leftMotorFPID = leftMotorF.getPIDController();
+  private CANPIDController leftMotorBPID = leftMotorB.getPIDController(); 
+  private CANPIDController rightMotorFPID = rightMotorF.getPIDController();
+  private CANPIDController rightMotorBPID = rightMotorB.getPIDController();
+  public double kP = 0.1; 
+  public double kI = 1e-4;
+  public double kD = 1; 
+  public double kIz = 0; 
+  public double kFF = 0; 
+  public double kMaxOutput = 1; 
+  public double kMinOutput = -1;
+
   // LIMIT SWITCHES
   DigitalInput upSwitch, downSwitch;
 
@@ -123,6 +136,43 @@ public class Robot extends TimedRobot {
     upSwitch = new DigitalInput(2);
     downSwitch = new DigitalInput(3);
 
+    leftMotorFPID.setP(kP);
+    leftMotorFPID.setI(kI);
+    leftMotorFPID.setD(kD);
+    leftMotorFPID.setIZone(kIz);
+    leftMotorFPID.setFF(kFF);
+    leftMotorFPID.setOutputRange(kMinOutput, kMaxOutput);
+
+    leftMotorBPID.setP(kP);
+    leftMotorBPID.setI(kI);
+    leftMotorBPID.setD(kD);
+    leftMotorBPID.setIZone(kIz);
+    leftMotorBPID.setFF(kFF);
+    leftMotorBPID.setOutputRange(kMinOutput, kMaxOutput);
+
+    rightMotorFPID.setP(kP);
+    rightMotorFPID.setI(kI);
+    rightMotorFPID.setD(kD);
+    rightMotorFPID.setIZone(kIz);
+    rightMotorFPID.setFF(kFF);
+    rightMotorFPID.setOutputRange(kMinOutput, kMaxOutput);
+
+    rightMotorBPID.setP(kP);
+    rightMotorBPID.setI(kI);
+    rightMotorBPID.setD(kD);
+    rightMotorBPID.setIZone(kIz);
+    rightMotorBPID.setFF(kFF);
+    rightMotorBPID.setOutputRange(kMinOutput, kMaxOutput);
+
+    SmartDashboard.putNumber("P Gain", kP);
+    SmartDashboard.putNumber("I Gain", kI);
+    SmartDashboard.putNumber("D Gain", kD);
+    SmartDashboard.putNumber("I Zone", kIz);
+    SmartDashboard.putNumber("Feed Forward", kFF);
+    SmartDashboard.putNumber("Max Output", kMaxOutput);
+    SmartDashboard.putNumber("Min Output", kMinOutput);
+    SmartDashboard.putNumber("Set Rotations", 0);
+
     t.start();
   }
 
@@ -154,6 +204,7 @@ public void autonomousPeriodic() {
     SmartDashboard.putNumber("wanted index", wantedIndex);
     SmartDashboard.putNumber("ball count", ballCount);
     SmartDashboard.putNumber("Left Enoder", leftEncoder.getPosition());
+
   //RUN PARTS OF THE ROBOT WHEN BUTTONS PRESSED
   countBalls();
   manualAim();
@@ -435,19 +486,13 @@ public void autonomousPeriodic() {
     }
   }
 
-  public void driveDistance(double driveDistance, double moveSpeedMagnitude){
-    double wantedTicks = driveDistance*7;
-    double moveSpeed = 0;
-    double leftMotorValue = leftEncoder.getPosition();
-    if (leftMotorValue != wantedTicks){
-      if(wantedTicks > leftMotorValue)
-      moveSpeed = moveSpeedMagnitude;
-      else if (wantedTicks < leftMotorValue)
-      moveSpeed = -moveSpeedMagnitude;}
-      else 
-      moveSpeed = 0;
-    leftMotors.set(moveSpeed);
-    rightMotors.set(moveSpeed);
+  public void driveDistance(double driveDistance){
+    double rotations = driveDistance / 7;
+    leftMotorFPID.setReference(rotations, ControlType.kPosition);
+    leftMotorBPID.setReference(rotations, ControlType.kPosition);
+    rightMotorFPID.setReference(rotations, ControlType.kPosition);
+    rightMotorBPID.setReference(rotations, ControlType.kPosition);
+
   }
 
   public boolean collectorRun(){
