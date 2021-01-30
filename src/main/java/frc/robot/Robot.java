@@ -564,6 +564,4 @@ public void autonomousPeriodic() {
 
     t.start();
   }
-
-// dont kill me plz
 }
