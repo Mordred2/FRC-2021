@@ -121,14 +121,32 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-  owenInit();
+    //Nothing goes here as we need it in Anoymousint\ot Teleop init  so Test is Seperate
   }
 
+
+@Override  
+public void autonomousInit() {
+  super.autonomousInit();
+  owenInit();
+}
+
+@Override
 public void autonomousPeriodic() {
+  super.autonomousPeriodic();
   collectorPID.setReference(10, ControlType.kPosition);
 }
 
+@Override
+public void teleopInit() {
+  // TODO Auto-generated method stub
+  super.teleopInit();
+  owenInit();
+}
+
+@Override
   public void teleopPeriodic() {
+    super.teleopPeriodic();
     //REPEATEDLY GET THESE VALUES
     double x = tx.getDouble(0.0);
     double y = ty.getDouble(0.0);
