@@ -43,8 +43,8 @@ import edu.wpi.first.wpilibj.SpeedControllerGroup;
 
 public class Robot extends TimedRobot {
   // JOYSTICKS
-  private final Joystick driveStick = new Joystick(0);
-  private final Joystick shootStick = new Joystick(1);
+  private Joystick driveStick = new Joystick(0);
+  private Joystick shootStick = new Joystick(1);
   // MOTORS
   //private final VictorSP m_leftMotor = new VictorSP(0);
   //private final VictorSP m_rightMotor = new VictorSP(1);
@@ -57,15 +57,15 @@ public class Robot extends TimedRobot {
   //private final Spark leftShooter = new Spark(8);
   //private final Spark rightShooter = new Spark(9);
   //private final Victor collector = new Victor(3);
-  private final Talon flopper = new Talon(2);
-  private final Talon aimer = new Talon(5);
+  private Talon flopper = new Talon(2);
+  private Talon aimer = new Talon(5);
   private CANSparkMax indexer;
   private CANSparkMax leftShooter;
   private CANSparkMax rightShooter;
   private CANSparkMax collector;
 
   // ENCODERS
-  private final Encoder aimerEncoder = new Encoder(0, 1);
+  private Encoder aimerEncoder = new Encoder(0, 1);
   private CANEncoder indexEncoder;
   private CANEncoder leftEncoder;
   private CANEncoder rightEncoder;
@@ -105,18 +105,12 @@ public class Robot extends TimedRobot {
   /*private final I2C.Port i2cPort = I2C.Port.kOnboard;
   private final ColorSensorV3 m_colorSensor = new ColorSensorV3(i2cPort);
   private final Color kYellowTarget = ColorMatch.makeColor(0.361, 0.524, 0.113);
-<<<<<<< HEAD
-<<<<<<< HEAD
-  private final ColorMatch m_colorMatcher = new ColorMatch();*/
-  /*private Rev2mDistanceSensor distOnboard; 
-=======
+
   private final ColorMatch m_colorMatcher = new ColorMatch();
   private Rev2mDistanceSensor distOnboard; 
->>>>>>> 6a0f01bb85b7cdf4a1dcd5cec829c5380e39d7f5
-=======
+
   private final ColorMatch m_colorMatcher = new ColorMatch();
   private Rev2mDistanceSensor distOnboard; 
->>>>>>> 6a0f01bb85b7cdf4a1dcd5cec829c5380e39d7f5
   Gyro euro = new AnalogGyro(0);*/
   // VARIABLES
   public boolean isCollectorOn;
@@ -507,6 +501,17 @@ public void autonomousPeriodic() {
   }
 
   public void owenInit(){
+
+
+    // JOYSTICKS
+    driveStick = new Joystick(0);
+    shootStick = new Joystick(1);
+    flopper = new Talon(2);
+    aimer = new Talon(5);
+    
+    // ENCODERS
+    aimerEncoder = new Encoder(0, 1);
+
   // MOTORS
   //private final VictorSP m_leftMotor = new VictorSP(0);
   //private final VictorSP m_rightMotor = new VictorSP(1);
