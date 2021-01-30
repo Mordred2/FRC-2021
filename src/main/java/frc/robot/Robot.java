@@ -72,23 +72,7 @@ public class Robot extends TimedRobot {
   private CANEncoder collectorEncoder;
 
   //PID CONTROLLERS 
-<<<<<<< HEAD
-<<<<<<< HEAD
-  private CANPIDController leftMotorFPID = leftMotorF.getPIDController();
-  private CANPIDController leftMotorBPID = leftMotorB.getPIDController(); 
-  private CANPIDController rightMotorFPID = rightMotorF.getPIDController();
-  private CANPIDController rightMotorBPID = rightMotorB.getPIDController();
-  private CANPIDController collectorPID = collector.getPIDController();
-  public double kP = 0.3; 
-  public double kI = 1e-4;
-  public double kD = 1; 
-  public double kIz = 0; 
-  public double kFF = 0; 
-  public double kMaxOutput = 1; 
-  public double kMinOutput = -1;
-=======
-=======
->>>>>>> 6a0f01bb85b7cdf4a1dcd5cec829c5380e39d7f5
+
   private CANPIDController leftMotorFPID;
   private CANPIDController leftMotorBPID; 
   private CANPIDController rightMotorFPID;
@@ -101,25 +85,22 @@ public class Robot extends TimedRobot {
   public double kFF; 
   public double kMaxOutput; 
   public double kMinOutput;
-<<<<<<< HEAD
->>>>>>> 6a0f01bb85b7cdf4a1dcd5cec829c5380e39d7f5
-=======
->>>>>>> 6a0f01bb85b7cdf4a1dcd5cec829c5380e39d7f5
+
 
   // LIMIT SWITCHES
   DigitalInput upSwitch, downSwitch;
 
   // DRIVETRAIN
   //private final DifferentialDrive m_robotDrive = new DifferentialDrive(m_leftMotor, m_rightMotor);
-  private final SpeedControllerGroup leftMotors = new SpeedControllerGroup(leftMotorF, leftMotorB);
-  private final SpeedControllerGroup rightMotors = new SpeedControllerGroup(rightMotorF, rightMotorB);
-  private final DifferentialDrive m_robotDrive = new DifferentialDrive(leftMotors, rightMotors);
+  private SpeedControllerGroup leftMotors;
+  private SpeedControllerGroup rightMotors;
+  private DifferentialDrive m_robotDrive;
   // NETWORK TABLES
-  NetworkTableInstance inst = NetworkTableInstance.getDefault();
-  NetworkTable table = inst.getTable("limelight");
-  NetworkTableEntry tx = table.getEntry("tx");
-  NetworkTableEntry ty = table.getEntry("ty");
-  NetworkTableEntry ta = table.getEntry("ta");
+  NetworkTableInstance inst;
+  NetworkTable table;
+  NetworkTableEntry tx;
+  NetworkTableEntry ty;
+  NetworkTableEntry ta;
   //ADDITIONAL SENSORS
   /*private final I2C.Port i2cPort = I2C.Port.kOnboard;
   private final ColorSensorV3 m_colorSensor = new ColorSensorV3(i2cPort);
@@ -529,7 +510,7 @@ public void autonomousPeriodic() {
   // MOTORS
   //private final VictorSP m_leftMotor = new VictorSP(0);
   //private final VictorSP m_rightMotor = new VictorSP(1);
- leftMotorF = new CANSparkMax(5, MotorType.kBrushless);
+  leftMotorF = new CANSparkMax(5, MotorType.kBrushless);
   leftMotorB = new CANSparkMax(6, MotorType.kBrushless);
   rightMotorF = new CANSparkMax(7, MotorType.kBrushless);
   rightMotorB = new CANSparkMax(8, MotorType.kBrushless);
@@ -552,7 +533,7 @@ public void autonomousPeriodic() {
   //PID CONTROLLERS 
   leftMotorFPID = leftMotorF.getPIDController();
   leftMotorBPID = leftMotorB.getPIDController(); 
-   rightMotorFPID = rightMotorF.getPIDController();
+  rightMotorFPID = rightMotorF.getPIDController();
   rightMotorBPID = rightMotorB.getPIDController();
   collectorPID = collector.getPIDController();
    kP = 0.1; 
@@ -563,6 +544,17 @@ public void autonomousPeriodic() {
    kMaxOutput = .25; 
    kMinOutput = -.25;
 
+   // DRIVETRAIN
+  //private final DifferentialDrive m_robotDrive = new DifferentialDrive(m_leftMotor, m_rightMotor);
+  leftMotors = new SpeedControllerGroup(leftMotorF, leftMotorB);
+  rightMotors = new SpeedControllerGroup(rightMotorF, rightMotorB);
+  m_robotDrive = new DifferentialDrive(leftMotors, rightMotors);
+  // NETWORK TABLES
+  inst = NetworkTableInstance.getDefault();
+  table = inst.getTable("limelight");
+  tx = table.getEntry("tx");
+  ty = table.getEntry("ty");
+  ta = table.getEntry("ta");
 
         //SENSORS
     CameraServer.getInstance().startAutomaticCapture();
