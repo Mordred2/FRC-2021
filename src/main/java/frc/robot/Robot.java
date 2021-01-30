@@ -68,19 +68,21 @@ public class Robot extends TimedRobot {
   private CANEncoder indexEncoder = indexer.getEncoder(EncoderType.kHallSensor, 1);
   private CANEncoder leftEncoder = leftMotorF.getEncoder(EncoderType.kHallSensor, 1);
   private CANEncoder rightEncoder = rightMotorF.getEncoder(EncoderType.kHallSensor, 1);
+  private CANEncoder collectorEncoder = collector.getEncoder(EncoderType.kHallSensor, 1);
 
   //PID CONTROLLERS 
   private CANPIDController leftMotorFPID = leftMotorF.getPIDController();
   private CANPIDController leftMotorBPID = leftMotorB.getPIDController(); 
   private CANPIDController rightMotorFPID = rightMotorF.getPIDController();
   private CANPIDController rightMotorBPID = rightMotorB.getPIDController();
+  private CANPIDController collectorPID = collector.getPIDController();
   public double kP = 0.1; 
   public double kI = 1e-4;
   public double kD = 1; 
   public double kIz = 0; 
   public double kFF = 0; 
-  public double kMaxOutput = 1; 
-  public double kMinOutput = -1;
+  public double kMaxOutput = .25; 
+  public double kMinOutput = -.25;
 
   // LIMIT SWITCHES
   DigitalInput upSwitch, downSwitch;
@@ -117,67 +119,11 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    //SENSORS
-    CameraServer.getInstance().startAutomaticCapture();
-    //m_colorMatcher.addColorMatch(kYellowTarget);
-    /*distOnboard = new Rev2mDistanceSensor(Port.kOnboard);
-    distOnboard.setRangeProfile(RangeProfile.kHighSpeed);
-    distOnboard.setRangeProfile(RangeProfile.kHighAccuracy);
-    distOnboard.setRangeProfile(RangeProfile.kLongRange);
-    distOnboard.setRangeProfile(RangeProfile.kDefault);
-    //enable the Distance Sensor background Thread
-    distOnboard.setAutomaticMode(true);*/
-    //CAN AND ENCODERS
-
-    aimerEncoder.setDistancePerPulse(1.0/650);
-    resetIndexer();
-    ballCount = 0;
-    //LIMIT SWITCHES
-    upSwitch = new DigitalInput(2);
-    downSwitch = new DigitalInput(3);
-
-    leftMotorFPID.setP(kP);
-    leftMotorFPID.setI(kI);
-    leftMotorFPID.setD(kD);
-    leftMotorFPID.setIZone(kIz);
-    leftMotorFPID.setFF(kFF);
-    leftMotorFPID.setOutputRange(kMinOutput, kMaxOutput);
-
-    leftMotorBPID.setP(kP);
-    leftMotorBPID.setI(kI);
-    leftMotorBPID.setD(kD);
-    leftMotorBPID.setIZone(kIz);
-    leftMotorBPID.setFF(kFF);
-    leftMotorBPID.setOutputRange(kMinOutput, kMaxOutput);
-
-    rightMotorFPID.setP(kP);
-    rightMotorFPID.setI(kI);
-    rightMotorFPID.setD(kD);
-    rightMotorFPID.setIZone(kIz);
-    rightMotorFPID.setFF(kFF);
-    rightMotorFPID.setOutputRange(kMinOutput, kMaxOutput);
-
-    rightMotorBPID.setP(kP);
-    rightMotorBPID.setI(kI);
-    rightMotorBPID.setD(kD);
-    rightMotorBPID.setIZone(kIz);
-    rightMotorBPID.setFF(kFF);
-    rightMotorBPID.setOutputRange(kMinOutput, kMaxOutput);
-
-    SmartDashboard.putNumber("P Gain", kP);
-    SmartDashboard.putNumber("I Gain", kI);
-    SmartDashboard.putNumber("D Gain", kD);
-    SmartDashboard.putNumber("I Zone", kIz);
-    SmartDashboard.putNumber("Feed Forward", kFF);
-    SmartDashboard.putNumber("Max Output", kMaxOutput);
-    SmartDashboard.putNumber("Min Output", kMinOutput);
-    SmartDashboard.putNumber("Set Rotations", 0);
-
-    t.start();
+  owenInit();
   }
 
 public void autonomousPeriodic() {
-
+  collectorPID.setReference(10, ControlType.kPosition);
 }
 
   public void teleopPeriodic() {
@@ -383,6 +329,10 @@ public void autonomousPeriodic() {
     indexEncoder.setPosition(0);
   }
 
+  public void resetLeft(){
+    leftEncoder.setPosition(0);
+  }
+
   public void resetAimer(){
     aimerEncoder.reset();
   }
@@ -490,11 +440,11 @@ public void autonomousPeriodic() {
   }
 
   public void driveDistance(double driveDistance){
-    double rotations = driveDistance / 7;
+    double rotations = driveDistance*(10/16);
     leftMotorFPID.setReference(rotations, ControlType.kPosition);
-    leftMotorBPID.setReference(rotations, ControlType.kPosition);
+    leftMotorBPID.setReference(-rotations, ControlType.kPosition);
     rightMotorFPID.setReference(rotations, ControlType.kPosition);
-    rightMotorBPID.setReference(rotations, ControlType.kPosition);
+    rightMotorBPID.setReference(-rotations, ControlType.kPosition);
 
   }
 
@@ -509,6 +459,75 @@ public void autonomousPeriodic() {
   }
   public boolean collectorBackStop(){
     return shootStick.getRawButtonReleased(5);
+  }
+
+  public void owenInit(){
+        //SENSORS
+    CameraServer.getInstance().startAutomaticCapture();
+    //m_colorMatcher.addColorMatch(kYellowTarget);
+    /*distOnboard = new Rev2mDistanceSensor(Port.kOnboard);
+    distOnboard.setRangeProfile(RangeProfile.kHighSpeed);
+    distOnboard.setRangeProfile(RangeProfile.kHighAccuracy);
+    distOnboard.setRangeProfile(RangeProfile.kLongRange);
+    distOnboard.setRangeProfile(RangeProfile.kDefault);
+    //enable the Distance Sensor background Thread
+    distOnboard.setAutomaticMode(true);*/
+    //CAN AND ENCODERS
+    collector.restoreFactoryDefaults();
+    aimerEncoder.setDistancePerPulse(1.0/650);
+    resetIndexer();
+    resetLeft();
+
+    ballCount = 0;
+    //LIMIT SWITCHES
+    upSwitch = new DigitalInput(2);
+    downSwitch = new DigitalInput(3);
+
+    leftMotorFPID.setP(kP);
+    leftMotorFPID.setI(kI);
+    leftMotorFPID.setD(kD);
+    leftMotorFPID.setIZone(kIz);
+    leftMotorFPID.setFF(kFF);
+    leftMotorFPID.setOutputRange(kMinOutput, kMaxOutput);
+
+    leftMotorBPID.setP(kP);
+    leftMotorBPID.setI(kI);
+    leftMotorBPID.setD(kD);
+    leftMotorBPID.setIZone(kIz);
+    leftMotorBPID.setFF(kFF);
+    leftMotorBPID.setOutputRange(kMinOutput, kMaxOutput);
+
+    rightMotorFPID.setP(kP);
+    rightMotorFPID.setI(kI);
+    rightMotorFPID.setD(kD);
+    rightMotorFPID.setIZone(kIz);
+    rightMotorFPID.setFF(kFF);
+    rightMotorFPID.setOutputRange(kMinOutput, kMaxOutput);
+
+    rightMotorBPID.setP(kP);
+    rightMotorBPID.setI(kI);
+    rightMotorBPID.setD(kD);
+    rightMotorBPID.setIZone(kIz);
+    rightMotorBPID.setFF(kFF);
+    rightMotorBPID.setOutputRange(kMinOutput, kMaxOutput);
+
+    collectorPID.setP(kP);
+    collectorPID.setI(kI);
+    collectorPID.setD(kD);
+    collectorPID.setIZone(kIz);
+    collectorPID.setFF(kFF);
+    collectorPID.setOutputRange(kMinOutput, kMaxOutput);
+
+    SmartDashboard.putNumber("P Gain", kP);
+    SmartDashboard.putNumber("I Gain", kI);
+    SmartDashboard.putNumber("D Gain", kD);
+    SmartDashboard.putNumber("I Zone", kIz);
+    SmartDashboard.putNumber("Feed Forward", kFF);
+    SmartDashboard.putNumber("Max Output", kMaxOutput);
+    SmartDashboard.putNumber("Min Output", kMinOutput);
+    SmartDashboard.putNumber("Set Rotations", 0);
+
+    t.start();
   }
 
 
