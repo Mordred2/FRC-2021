@@ -14,7 +14,7 @@ import com.revrobotics.*;
 
 public class Test {
 
-    private static final int deviceID = 2;
+    private static final int deviceCanID = 4;
     private CANSparkMax m_motor;
     private CANPIDController m_pidController;
     private CANEncoder m_encoder;
@@ -24,7 +24,7 @@ public class Test {
     public void TestInit(){
         //examplePDP = new PowerDistributionPanel(0);
         // initialize motor
-        m_motor = new CANSparkMax(deviceID, MotorType.kBrushless);
+        m_motor = new CANSparkMax(deviceCanID, MotorType.kBrushless);
 
         /**
          * The restoreFactoryDefaults method can be used to reset the configuration parameters
