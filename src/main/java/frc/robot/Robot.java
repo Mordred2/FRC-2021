@@ -495,44 +495,6 @@ public void autonomousPeriodic() {
   }
 
   public void owenInit(){
-  // MOTORS
-  //private final VictorSP m_leftMotor = new VictorSP(0);
-  //private final VictorSP m_rightMotor = new VictorSP(1);
- leftMotorF = new CANSparkMax(5, MotorType.kBrushless);
-  leftMotorB = new CANSparkMax(6, MotorType.kBrushless);
-  rightMotorF = new CANSparkMax(7, MotorType.kBrushless);
-  rightMotorB = new CANSparkMax(8, MotorType.kBrushless);
-
-
-  //private final Spark leftShooter = new Spark(8);
-  //private final Spark rightShooter = new Spark(9);
-  //private final Victor collector = new Victor(3)
-   indexer = new CANSparkMax(1, MotorType.kBrushless);
-   leftShooter = new CANSparkMax(2, MotorType.kBrushed);
-   rightShooter = new CANSparkMax(3, MotorType.kBrushed);
-   collector = new CANSparkMax(4, MotorType.kBrushless);
-
-  // ENCODERS
-  indexEncoder = indexer.getEncoder(EncoderType.kHallSensor, 1);
-  leftEncoder = leftMotorF.getEncoder(EncoderType.kHallSensor, 1);
-  rightEncoder = rightMotorF.getEncoder(EncoderType.kHallSensor, 1);
-  collectorEncoder = collector.getEncoder(EncoderType.kHallSensor, 1);
-
-  //PID CONTROLLERS 
-  leftMotorFPID = leftMotorF.getPIDController();
-  leftMotorBPID = leftMotorB.getPIDController(); 
-   rightMotorFPID = rightMotorF.getPIDController();
-  rightMotorBPID = rightMotorB.getPIDController();
-  collectorPID = collector.getPIDController();
-   kP = 0.1; 
-   kI = 1e-4;
-   kD = 1; 
-   kIz = 0; 
-   kFF = 0; 
-   kMaxOutput = .25; 
-   kMinOutput = -.25;
-
-
         //SENSORS
     CameraServer.getInstance().startAutomaticCapture();
     //m_colorMatcher.addColorMatch(kYellowTarget);
@@ -602,4 +564,6 @@ public void autonomousPeriodic() {
 
     t.start();
   }
+
+// dont kill me plz
 }
