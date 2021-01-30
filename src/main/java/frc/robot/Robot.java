@@ -48,10 +48,10 @@ public class Robot extends TimedRobot {
   // MOTORS
   //private final VictorSP m_leftMotor = new VictorSP(0);
   //private final VictorSP m_rightMotor = new VictorSP(1);
-  private CANSparkMax leftMotorF = new CANSparkMax(5, MotorType.kBrushless);
-  private CANSparkMax leftMotorB = new CANSparkMax(6, MotorType.kBrushless);
-  private CANSparkMax rightMotorF = new CANSparkMax(7, MotorType.kBrushless);
-  private CANSparkMax rightMotorB = new CANSparkMax(8, MotorType.kBrushless);
+  private CANSparkMax leftMotorF;
+  private CANSparkMax leftMotorB;
+  private CANSparkMax rightMotorF;
+  private CANSparkMax rightMotorB;
 
 
   //private final Spark leftShooter = new Spark(8);
@@ -59,31 +59,52 @@ public class Robot extends TimedRobot {
   //private final Victor collector = new Victor(3);
   private final Talon flopper = new Talon(2);
   private final Talon aimer = new Talon(5);
-  private CANSparkMax indexer = new CANSparkMax(1, MotorType.kBrushless);
-  private CANSparkMax leftShooter = new CANSparkMax(2, MotorType.kBrushed);
-  private CANSparkMax rightShooter = new CANSparkMax(3, MotorType.kBrushed);
-  private CANSparkMax collector = new CANSparkMax(4, MotorType.kBrushless);
+  private CANSparkMax indexer;
+  private CANSparkMax leftShooter;
+  private CANSparkMax rightShooter;
+  private CANSparkMax collector;
 
   // ENCODERS
   private final Encoder aimerEncoder = new Encoder(0, 1);
-  private CANEncoder indexEncoder = indexer.getEncoder(EncoderType.kHallSensor, 1);
-  private CANEncoder leftEncoder = leftMotorF.getEncoder(EncoderType.kHallSensor, 1);
-  private CANEncoder rightEncoder = rightMotorF.getEncoder(EncoderType.kHallSensor, 1);
-  private CANEncoder collectorEncoder = collector.getEncoder(EncoderType.kHallSensor, 1);
+  private CANEncoder indexEncoder;
+  private CANEncoder leftEncoder;
+  private CANEncoder rightEncoder;
+  private CANEncoder collectorEncoder;
 
   //PID CONTROLLERS 
+<<<<<<< HEAD
+<<<<<<< HEAD
   private CANPIDController leftMotorFPID = leftMotorF.getPIDController();
   private CANPIDController leftMotorBPID = leftMotorB.getPIDController(); 
   private CANPIDController rightMotorFPID = rightMotorF.getPIDController();
   private CANPIDController rightMotorBPID = rightMotorB.getPIDController();
   private CANPIDController collectorPID = collector.getPIDController();
-  public double kP = 0.1; 
+  public double kP = 0.3; 
   public double kI = 1e-4;
   public double kD = 1; 
   public double kIz = 0; 
   public double kFF = 0; 
-  public double kMaxOutput = .25; 
-  public double kMinOutput = -.25;
+  public double kMaxOutput = 1; 
+  public double kMinOutput = -1;
+=======
+=======
+>>>>>>> 6a0f01bb85b7cdf4a1dcd5cec829c5380e39d7f5
+  private CANPIDController leftMotorFPID;
+  private CANPIDController leftMotorBPID; 
+  private CANPIDController rightMotorFPID;
+  private CANPIDController rightMotorBPID;
+  private CANPIDController collectorPID;
+  public double kP ; 
+  public double kI ;
+  public double kD ; 
+  public double kIz; 
+  public double kFF; 
+  public double kMaxOutput; 
+  public double kMinOutput;
+<<<<<<< HEAD
+>>>>>>> 6a0f01bb85b7cdf4a1dcd5cec829c5380e39d7f5
+=======
+>>>>>>> 6a0f01bb85b7cdf4a1dcd5cec829c5380e39d7f5
 
   // LIMIT SWITCHES
   DigitalInput upSwitch, downSwitch;
@@ -100,11 +121,21 @@ public class Robot extends TimedRobot {
   NetworkTableEntry ty = table.getEntry("ty");
   NetworkTableEntry ta = table.getEntry("ta");
   //ADDITIONAL SENSORS
-  private final I2C.Port i2cPort = I2C.Port.kOnboard;
+  /*private final I2C.Port i2cPort = I2C.Port.kOnboard;
   private final ColorSensorV3 m_colorSensor = new ColorSensorV3(i2cPort);
   private final Color kYellowTarget = ColorMatch.makeColor(0.361, 0.524, 0.113);
-  private final ColorMatch m_colorMatcher = new ColorMatch();
+<<<<<<< HEAD
+<<<<<<< HEAD
+  private final ColorMatch m_colorMatcher = new ColorMatch();*/
   /*private Rev2mDistanceSensor distOnboard; 
+=======
+  private final ColorMatch m_colorMatcher = new ColorMatch();
+  private Rev2mDistanceSensor distOnboard; 
+>>>>>>> 6a0f01bb85b7cdf4a1dcd5cec829c5380e39d7f5
+=======
+  private final ColorMatch m_colorMatcher = new ColorMatch();
+  private Rev2mDistanceSensor distOnboard; 
+>>>>>>> 6a0f01bb85b7cdf4a1dcd5cec829c5380e39d7f5
   Gyro euro = new AnalogGyro(0);*/
   // VARIABLES
   public boolean isCollectorOn;
@@ -140,7 +171,7 @@ public void autonomousPeriodic() {
 
     //More Sensing
    // rangeSensor();
-    colorSensor();
+    //colorSensor();
 
     // SMART DASHBOARD
     SmartDashboard.putNumber("LimelightX", x);
@@ -271,7 +302,7 @@ public void autonomousPeriodic() {
     }
   }*/
 
-  public void colorSensor(){
+  /*public void colorSensor(){
     Color detectedColor = m_colorSensor.getColor();
     String colorString;
     ColorMatchResult match = m_colorMatcher.matchColor(detectedColor);
@@ -283,7 +314,7 @@ public void autonomousPeriodic() {
     }
     SmartDashboard.putNumber("Confidence", match.confidence);
     SmartDashboard.putString("Index Now", colorString);
-  }
+  }*/
 
   public void indexForward(double wantedIndexIn, double indexSpeedMagnitude, double indexPosition){
     double wantedIndexForward = wantedIndexIn;
@@ -495,9 +526,47 @@ public void autonomousPeriodic() {
   }
 
   public void owenInit(){
+  // MOTORS
+  //private final VictorSP m_leftMotor = new VictorSP(0);
+  //private final VictorSP m_rightMotor = new VictorSP(1);
+ leftMotorF = new CANSparkMax(5, MotorType.kBrushless);
+  leftMotorB = new CANSparkMax(6, MotorType.kBrushless);
+  rightMotorF = new CANSparkMax(7, MotorType.kBrushless);
+  rightMotorB = new CANSparkMax(8, MotorType.kBrushless);
+
+
+  //private final Spark leftShooter = new Spark(8);
+  //private final Spark rightShooter = new Spark(9);
+  //private final Victor collector = new Victor(3)
+   indexer = new CANSparkMax(1, MotorType.kBrushless);
+   leftShooter = new CANSparkMax(2, MotorType.kBrushed);
+   rightShooter = new CANSparkMax(3, MotorType.kBrushed);
+   collector = new CANSparkMax(4, MotorType.kBrushless);
+
+  // ENCODERS
+  indexEncoder = indexer.getEncoder(EncoderType.kHallSensor, 1);
+  leftEncoder = leftMotorF.getEncoder(EncoderType.kHallSensor, 1);
+  rightEncoder = rightMotorF.getEncoder(EncoderType.kHallSensor, 1);
+  collectorEncoder = collector.getEncoder(EncoderType.kHallSensor, 1);
+
+  //PID CONTROLLERS 
+  leftMotorFPID = leftMotorF.getPIDController();
+  leftMotorBPID = leftMotorB.getPIDController(); 
+   rightMotorFPID = rightMotorF.getPIDController();
+  rightMotorBPID = rightMotorB.getPIDController();
+  collectorPID = collector.getPIDController();
+   kP = 0.1; 
+   kI = 1e-4;
+   kD = 1; 
+   kIz = 0; 
+   kFF = 0; 
+   kMaxOutput = .25; 
+   kMinOutput = -.25;
+
+
         //SENSORS
     CameraServer.getInstance().startAutomaticCapture();
-    m_colorMatcher.addColorMatch(kYellowTarget);
+    //m_colorMatcher.addColorMatch(kYellowTarget);
     /*distOnboard = new Rev2mDistanceSensor(Port.kOnboard);
     distOnboard.setRangeProfile(RangeProfile.kHighSpeed);
     distOnboard.setRangeProfile(RangeProfile.kHighAccuracy);
@@ -563,5 +632,6 @@ public void autonomousPeriodic() {
     state = 0;
 
     t.start();
+    //this is right
   }
 }
