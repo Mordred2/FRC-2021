@@ -48,10 +48,10 @@ public class Robot extends TimedRobot {
   // MOTORS
   //private final VictorSP m_leftMotor = new VictorSP(0);
   //private final VictorSP m_rightMotor = new VictorSP(1);
-  private CANSparkMax leftMotorF = new CANSparkMax(5, MotorType.kBrushless);
-  private CANSparkMax leftMotorB = new CANSparkMax(6, MotorType.kBrushless);
-  private CANSparkMax rightMotorF = new CANSparkMax(7, MotorType.kBrushless);
-  private CANSparkMax rightMotorB = new CANSparkMax(8, MotorType.kBrushless);
+  private CANSparkMax leftMotorF;
+  private CANSparkMax leftMotorB;
+  private CANSparkMax rightMotorF;
+  private CANSparkMax rightMotorB;
 
 
   //private final Spark leftShooter = new Spark(8);
@@ -59,31 +59,31 @@ public class Robot extends TimedRobot {
   //private final Victor collector = new Victor(3);
   private final Talon flopper = new Talon(2);
   private final Talon aimer = new Talon(5);
-  private CANSparkMax indexer = new CANSparkMax(1, MotorType.kBrushless);
-  private CANSparkMax leftShooter = new CANSparkMax(2, MotorType.kBrushed);
-  private CANSparkMax rightShooter = new CANSparkMax(3, MotorType.kBrushed);
-  private CANSparkMax collector = new CANSparkMax(4, MotorType.kBrushless);
+  private CANSparkMax indexer;
+  private CANSparkMax leftShooter;
+  private CANSparkMax rightShooter;
+  private CANSparkMax collector;
 
   // ENCODERS
   private final Encoder aimerEncoder = new Encoder(0, 1);
-  private CANEncoder indexEncoder = indexer.getEncoder(EncoderType.kHallSensor, 1);
-  private CANEncoder leftEncoder = leftMotorF.getEncoder(EncoderType.kHallSensor, 1);
-  private CANEncoder rightEncoder = rightMotorF.getEncoder(EncoderType.kHallSensor, 1);
-  private CANEncoder collectorEncoder = collector.getEncoder(EncoderType.kHallSensor, 1);
+  private CANEncoder indexEncoder;
+  private CANEncoder leftEncoder;
+  private CANEncoder rightEncoder;
+  private CANEncoder collectorEncoder;
 
   //PID CONTROLLERS 
-  private CANPIDController leftMotorFPID = leftMotorF.getPIDController();
-  private CANPIDController leftMotorBPID = leftMotorB.getPIDController(); 
-  private CANPIDController rightMotorFPID = rightMotorF.getPIDController();
-  private CANPIDController rightMotorBPID = rightMotorB.getPIDController();
-  private CANPIDController collectorPID = collector.getPIDController();
-  public double kP = 0.1; 
-  public double kI = 1e-4;
-  public double kD = 1; 
-  public double kIz = 0; 
-  public double kFF = 0; 
-  public double kMaxOutput = .25; 
-  public double kMinOutput = -.25;
+  private CANPIDController leftMotorFPID;
+  private CANPIDController leftMotorBPID; 
+  private CANPIDController rightMotorFPID;
+  private CANPIDController rightMotorBPID;
+  private CANPIDController collectorPID;
+  public double kP ; 
+  public double kI ;
+  public double kD ; 
+  public double kIz; 
+  public double kFF; 
+  public double kMaxOutput; 
+  public double kMinOutput;
 
   // LIMIT SWITCHES
   DigitalInput upSwitch, downSwitch;
