@@ -100,11 +100,11 @@ public class Robot extends TimedRobot {
   NetworkTableEntry ty = table.getEntry("ty");
   NetworkTableEntry ta = table.getEntry("ta");
   //ADDITIONAL SENSORS
-  /*private final I2C.Port i2cPort = I2C.Port.kOnboard;
+  private final I2C.Port i2cPort = I2C.Port.kOnboard;
   private final ColorSensorV3 m_colorSensor = new ColorSensorV3(i2cPort);
   private final Color kYellowTarget = ColorMatch.makeColor(0.361, 0.524, 0.113);
   private final ColorMatch m_colorMatcher = new ColorMatch();
-  private Rev2mDistanceSensor distOnboard; 
+  /*private Rev2mDistanceSensor distOnboard; 
   Gyro euro = new AnalogGyro(0);*/
   // VARIABLES
   public boolean isCollectorOn;
@@ -140,7 +140,7 @@ public void autonomousPeriodic() {
 
     //More Sensing
    // rangeSensor();
-    //colorSensor();
+    colorSensor();
 
     // SMART DASHBOARD
     SmartDashboard.putNumber("LimelightX", x);
@@ -271,7 +271,7 @@ public void autonomousPeriodic() {
     }
   }*/
 
-  /*public void colorSensor(){
+  public void colorSensor(){
     Color detectedColor = m_colorSensor.getColor();
     String colorString;
     ColorMatchResult match = m_colorMatcher.matchColor(detectedColor);
@@ -283,7 +283,7 @@ public void autonomousPeriodic() {
     }
     SmartDashboard.putNumber("Confidence", match.confidence);
     SmartDashboard.putString("Index Now", colorString);
-  }*/
+  }
 
   public void indexForward(double wantedIndexIn, double indexSpeedMagnitude, double indexPosition){
     double wantedIndexForward = wantedIndexIn;
@@ -535,7 +535,7 @@ public void autonomousPeriodic() {
 
         //SENSORS
     CameraServer.getInstance().startAutomaticCapture();
-    //m_colorMatcher.addColorMatch(kYellowTarget);
+    m_colorMatcher.addColorMatch(kYellowTarget);
     /*distOnboard = new Rev2mDistanceSensor(Port.kOnboard);
     distOnboard.setRangeProfile(RangeProfile.kHighSpeed);
     distOnboard.setRangeProfile(RangeProfile.kHighAccuracy);
