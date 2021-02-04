@@ -140,6 +140,7 @@ public class Robot extends TimedRobot {
     owenInit();
   }
 
+  @Override
 public void autonomousPeriodic() {
   collectorPID.setReference(10, ControlType.kPosition);
 }
