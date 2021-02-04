@@ -9,626 +9,136 @@
 package frc.robot;
 
 //imports
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.wpilibj.AnalogGyro;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.I2C;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Spark;
-import edu.wpi.first.wpilibj.SpeedControllerGroup;
-import edu.wpi.first.wpilibj.Talon;
+
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.Victor;
-import edu.wpi.first.wpilibj.VictorSP;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.interfaces.Gyro;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
+
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.EncoderType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.ColorSensorV3;
-import com.revrobotics.ColorMatchResult;
-import com.revrobotics.ColorMatch;
+
 import com.revrobotics.*;
-import com.revrobotics.Rev2mDistanceSensor.Port;
-import com.revrobotics.Rev2mDistanceSensor.RangeProfile;
-import edu.wpi.first.wpilibj.SpeedControllerGroup;
+
+
+
 
 public class Robot extends TimedRobot {
-  // JOYSTICKS
-  private Joystick driveStick = new Joystick(0);
-  private Joystick shootStick = new Joystick(1);
-  // MOTORS
-  //private final VictorSP m_leftMotor = new VictorSP(0);
-  //private final VictorSP m_rightMotor = new VictorSP(1);
-  private CANSparkMax leftMotorF;
-  private CANSparkMax leftMotorB;
-  private CANSparkMax rightMotorF;
-  private CANSparkMax rightMotorB;
-
-
-  //private final Spark leftShooter = new Spark(8);
-  //private final Spark rightShooter = new Spark(9);
-  //private final Victor collector = new Victor(3);
-  private Talon flopper = new Talon(2);
-  private Talon aimer = new Talon(5);
-  private CANSparkMax indexer;
-  private CANSparkMax leftShooter;
-  private CANSparkMax rightShooter;
-  private CANSparkMax collector;
-
-  // ENCODERS
-  private Encoder aimerEncoder = new Encoder(0, 1);
-  private CANEncoder indexEncoder;
-  private CANEncoder leftEncoder;
-  private CANEncoder rightEncoder;
-  private CANEncoder collectorEncoder;
-
-  //PID CONTROLLERS 
-
-  private CANPIDController leftMotorFPID;
-  private CANPIDController leftMotorBPID; 
-  private CANPIDController rightMotorFPID;
-  private CANPIDController rightMotorBPID;
-  private CANPIDController collectorPID;
-  public double kP ; 
-  public double kI ;
-  public double kD ; 
-  public double kIz; 
-  public double kFF; 
-  public double kMaxOutput; 
-  public double kMinOutput;
-
-
-  // LIMIT SWITCHES
-  DigitalInput upSwitch, downSwitch;
-
-  // DRIVETRAIN
-  //private final DifferentialDrive m_robotDrive = new DifferentialDrive(m_leftMotor, m_rightMotor);
-  private SpeedControllerGroup leftMotors;
-  private SpeedControllerGroup rightMotors;
-  private DifferentialDrive m_robotDrive;
-  // NETWORK TABLES
-  NetworkTableInstance inst;
-  NetworkTable table;
-  NetworkTableEntry tx;
-  NetworkTableEntry ty;
-  NetworkTableEntry ta;
-  //ADDITIONAL SENSORS
-  /*private final I2C.Port i2cPort = I2C.Port.kOnboard;
-  private final ColorSensorV3 m_colorSensor = new ColorSensorV3(i2cPort);
-  private final Color kYellowTarget = ColorMatch.makeColor(0.361, 0.524, 0.113);
-
-  private final ColorMatch m_colorMatcher = new ColorMatch();
-  private Rev2mDistanceSensor distOnboard; 
-
-  private final ColorMatch m_colorMatcher = new ColorMatch();
-  private Rev2mDistanceSensor distOnboard; 
-  Gyro euro = new AnalogGyro(0);*/
-  // VARIABLES
-  public boolean isCollectorOn;
-  public boolean isIndexerOn;
-  public boolean isCollectorBackwards;
-  public boolean isIndexerBackwards;
-  public boolean readyToIndex;
-  public double wantedIndex;
-  public double shootIndex;
-  public double ballCount;
-
-  public double state;
-  final Timer t = new Timer();
-
-  @Override
-  public void robotInit() {
-  owenInit();
-  }
-
-public void autonomousPeriodic() {
-  collectorPID.setReference(10, ControlType.kPosition);
-}
-
-  public void teleopPeriodic() {
-    //REPEATEDLY GET THESE VALUES
-    double x = tx.getDouble(0.0);
-    double y = ty.getDouble(0.0);
-    double area = ta.getDouble(0.0);
-    double distanceAngle = Math.toRadians(y);
-    double distance = 74.25 / Math.tan(0.401426 + distanceAngle);
-    double aimerEncoderValue = (aimerEncoder.getDistance());
-    double indexPosition = indexEncoder.getPosition();
-
-    //More Sensing
-   // rangeSensor();
-    //colorSensor();
-
-    // SMART DASHBOARD
-    SmartDashboard.putNumber("LimelightX", x);
-    SmartDashboard.putNumber("LimelightY", y);
-    SmartDashboard.putNumber("LimelightArea", area);
-    SmartDashboard.putNumber("distance", distance);
-    SmartDashboard.putNumber("Aimer", aimerEncoder.getDistance());
-    SmartDashboard.putNumber("IndexCoder", indexPosition);
-    SmartDashboard.putNumber("wanted index", wantedIndex);
-    SmartDashboard.putNumber("ball count", ballCount);
-    SmartDashboard.putNumber("Left Enoder", leftEncoder.getPosition());
-
-  //RUN PARTS OF THE ROBOT WHEN BUTTONS PRESSED
-  countBalls();
-  manualAim();
-  heShootsHeScores(indexPosition);
-
-
-  if(collectorRun())
-  runCollector(.4);
-  if(collectorBack())
-  runCollector(-.75);
-  if(collectorStop() || collectorBackStop())
-  runCollector(0);
-  if (pleaseStop())
-  stopThePress();
-  if (shooterPrimedPressed()){
-    resetIndexer();
-    runShooter(-1);}
-  if (fwoooopTimePressed()){
-    resetIndexer();
-    ballCount = ballCount + 1;
-  }
-  fwoooop(indexPosition);
-  if (fire()){
-    runIndexer(.75);
-    runCollector(1);}
-  if(driveStick.getTriggerReleased()){
-    runIndexer(0);
-    runShooter(0);
-    runCollector(0);
-    ballCount = 0;
-  }
-  if (shootStick.getRawButton(12))
-  resetAimer();
-  if(stopShooter()){
-    runShooter(0);
-  }
-  if (stopIndexer()){
-    runIndexer(0);
-  }
-
-  flopIt();
-  if (aimingEngaged()) {
-    aim(x, aimerEncoderValue, distance);
-  } 
-  else drive(-driveStick.getY(), driveStick.getX(), driveStick.getRawButton(2));
-}
-  //FUNCTIONS
-
-  public void heShootsHeScores(double indexPosition) {
-    if(shooterPrimed()){
-      wantedIndex = -.11;
-    }
-    IndexBackwards(wantedIndex, 1, indexPosition);}
-
-  public void fwoooop(double indexPosition) {
-    if(fwoooopTime()) {
-      wantedIndex = .40+((ballCount-1)*.25);}
-    indexForward(wantedIndex, 1, indexPosition);
-  }
-
-
-  public void flopIt() {
-    if(shootStick.getRawButton(6) && (upSwitch.get()))
-      flopper.set(-1);
-    else if(shootStick.getRawButton(4) && (downSwitch.get()))
-      flopper.set(.25);
-    else flopper.set(0);
-  }
-
-  public void aim(double h, double aimerEncoderValue, double distance) {
-    // Heading Error
-    double x = h;
-    double steering_adjust = 0;
-    if (x > .32)
-      steering_adjust = .235 + (.015) * Math.log(x);
-    if (x < -.32)
-      steering_adjust = -(.235 + (.015) * Math.log(-x));
-    m_robotDrive.tankDrive(steering_adjust, -steering_adjust);
-    if ((x < -.32) && (x > .32))
-    {
-      //adjust(distance);
-    }
-  }
-
-  public void adjust(double distance) {
-    double currentWormDistance = (aimerEncoder.getDistance()/ 2.62);
-    //needs Math
-    double currentAngle = currentWormDistance;
-    double wantedAngle = (.1733 * ((distance*distance)/144) - 4.8*(distance/12) + 58.667);
-    if(currentAngle < wantedAngle)
-    aimUp(wantedAngle, currentAngle);
-    if(currentAngle > wantedAngle)
-    aimDown(wantedAngle, currentAngle);
-  }
-
-  public void aimDown(double wantedAngle, double currentAngle) {
-    //needs Math
-  double aimerSpeed = wantedAngle - currentAngle;
-  aimer.set(aimerSpeed);
-  }
-
-  public void aimUp(double wantedAngle, double currentAngle) {
-    //needs Math
-    double aimerSpeed = wantedAngle - currentAngle;
-    aimer.set(-aimerSpeed);
-  }
-
-  public void drive(double speed, double turn, boolean quickTurn) {
-    m_robotDrive.curvatureDrive(speed, 0, false);
-  }
-
-  /*public void rangeSensor(){
-    if(distOnboard.isRangeValid()) {
-      SmartDashboard.putNumber("Range Onboard", distOnboard.getRange());
-      SmartDashboard.putNumber("Timestamp Onboard", distOnboard.getTimestamp());
-    }
-  }*/
-
-  /*public void colorSensor(){
-    Color detectedColor = m_colorSensor.getColor();
-    String colorString;
-    ColorMatchResult match = m_colorMatcher.matchColor(detectedColor);
   
-    if (match.color == kYellowTarget) {
-      colorString = "Yes";
-    } else {
-      colorString = "No";
+
+
+  
+
+    private static final int test_deviceCanID = 4;
+    private CANSparkMax test_m_motor;
+    private CANPIDController test_m_pidController;
+    private CANEncoder test_m_encoder;
+    public double test_kP, test_kI, test_kD, test_kIz, test_kFF, test_kMaxOutput, test_kMinOutput;
+
+
+    @Override
+    public void robotInit() {
+      
+        //examplePDP = new PowerDistributionPanel(0);
+        // initialize motor
+        test_m_motor = new CANSparkMax(test_deviceCanID, MotorType.kBrushless);
+
+        /**
+         * The restoreFactoryDefaults method can be used to reset the configuration parameters
+         * in the SPARK MAX to their factory default state. If no argument is passed, these
+         * parameters will not persist between power cycles
+         */
+        test_m_motor.restoreFactoryDefaults();
+
+        /**
+         * In order to use PID functionality for a controller, a CANPIDController object
+         * is constructed by calling the getPIDController() method on an existing
+         * CANSparkMax object
+         */
+        test_m_pidController = test_m_motor.getPIDController();
+
+        // Encoder object created to display position values
+        test_m_encoder = test_m_motor.getEncoder();
+        test_m_encoder.setPosition(0);
+        // PID coefficients
+        test_kP = 0.1; 
+        test_kI = 1e-4;
+        test_kD = 1; 
+        test_kIz = 0; 
+        test_kFF = 0; 
+        test_kMaxOutput = 1; 
+        test_kMinOutput = -1;
+
+       
+
+        // set PID coefficients
+        test_m_pidController.setP(test_kP);
+        test_m_pidController.setI(test_kI);
+        test_m_pidController.setD(test_kD);
+        test_m_pidController.setIZone(test_kIz);
+        test_m_pidController.setFF(test_kFF);
+        test_m_pidController.setOutputRange(test_kMinOutput, test_kMaxOutput);
+
+        // display PID coefficients on SmartDashboard
+        SmartDashboard.putNumber("P Gain", test_kP);
+        SmartDashboard.putNumber("I Gain", test_kI);
+        SmartDashboard.putNumber("D Gain", test_kD);
+        SmartDashboard.putNumber("I Zone", test_kIz);
+        SmartDashboard.putNumber("Feed Forward", test_kFF);
+        SmartDashboard.putNumber("Max Output", test_kMaxOutput);
+        SmartDashboard.putNumber("Min Output", test_kMinOutput);
+        SmartDashboard.putNumber("Set Rotations", 0);
+        //SmartDashboard.putNumber("Volts", examplePDP.getVoltage());
+      
     }
-    SmartDashboard.putNumber("Confidence", match.confidence);
-    SmartDashboard.putString("Index Now", colorString);
-  }*/
 
-  public void indexForward(double wantedIndexIn, double indexSpeedMagnitude, double indexPosition){
-    double wantedIndexForward = wantedIndexIn;
-    if(wantedIndexForward > 0){
-    double indexSpeed = indexSpeedMagnitude;
-    if (indexPosition < wantedIndexForward){
-      indexer.set(indexSpeed);
-  }
-   if(indexPosition >= wantedIndexForward){ 
-     indexer.set(0);
-     wantedIndexForward = 0;
-    }
-  }
-  }
-
-  public void IndexBackwards(double wantedIndexIn, double indexSpeedMagnitude, double indexPosition){
-    double wantedIndexBackwards = (wantedIndexIn);
-    if(wantedIndexBackwards < 0){
-    double indexSpeed = (-indexSpeedMagnitude);
-    if(indexPosition > wantedIndexBackwards){
-      indexer.set(indexSpeed);
-  }
-    if(indexPosition < wantedIndexBackwards && wantedIndexBackwards != 0){ 
-      wantedIndexBackwards = 0;
-      indexer.set(0);
-    }
-  }
-    SmartDashboard.putNumber("wanted Index back", wantedIndex);
-  }
-
-  public void runIndexer(double indexerSpeed){
-    indexer.set(indexerSpeed);
-  }
-
-  public void runShooter(double shootSpeed){
-    leftShooter.set(shootSpeed);
-    rightShooter.set(-shootSpeed);
-  }
-
-  public void runCollector(double collectorSpeed){
-    collector.set(collectorSpeed);
-  }
-
-  public void resetIndexer(){
-    indexEncoder.setPosition(0);
-  }
-
-  public void resetLeft(){
-    leftEncoder.setPosition(0);
-  }
-
-  public void resetAimer(){
-    aimerEncoder.reset();
-  }
-
-  public void checkButtons(){
-    aimingEngaged();
-    shooterPrimed();
-    shooterPrimedPressed();
-    fwoooopTime();
-    fwoooopTimePressed();
-    fire();
-    stopShooter();
-    goingUp();
-    goingDown();
-    stopIndexer();
-    pleaseStop();
-  }
-
-  public boolean aimingEngaged() {
-    return shootStick.getRawButton(2);
-  }
-
-  public boolean shooterPrimed() {
-    return shootStick.getRawButton(7);
-  }
-  public boolean shooterPrimedPressed() {
-    return shootStick.getRawButtonPressed(7);
-  }
-  public boolean fwoooopTime() {
-    return shootStick.getTrigger();
-  }
-  public boolean fwoooopTimePressed() {
-    return shootStick.getTriggerPressed();
-  }
-  public boolean fire() {
-    return driveStick.getTrigger();
-  }
-  public boolean stopShooter() {
-    return shootStick.getRawButtonPressed(8);
-  }
-  public boolean goingUp(){
-   return driveStick.getRawButtonPressed(5);
-  }
-  public boolean goingDown(){
-    return driveStick.getRawButtonPressed(3);
-  }
-  public boolean stopIndexer() {
-    return shootStick.getRawButtonPressed(10);
-  }
-  public boolean pleaseStop(){
-    return driveStick.getRawButton(7);
-  }
-  public void stopThePress(){
-    indexer.set(0);
-    collector.set(0);
-    runShooter(0);
-    drive(0, 0, false);
-    flopper.set(0);
-    aimer.set(0);
-  }
-
-  public void reverseIndex(){
-    if(shootStick.getRawButton(9)){
-      runIndexer(.5);
-    }
-  }
-
-  public void manualAim(){
-    if(shootStick.getY() >= .5 || shootStick.getY() <= -.5)
-    aimer.set(-shootStick.getY());
-    else aimer.set(0);
-  }
-
-  public void countBalls(){
-    if(ballCount >= 5) ballCount = 5;
-    if(ballCount < 0) ballCount = 0;
-    if(shootStick.getRawButtonPressed(11)) ballCount = ballCount -1;
-  } 
-
-  public void turnDegrees(double turnDegrees, double moveSpeedMagnitude){
-    double turnState = 0;
-    double leftFinalTicks = 0; 
-    double rightFinalTicks = 0; 
-    double ticksPerDegree = 0;
-    double leftMotorValue = leftEncoder.getPosition();
-    double rightMotorValue = rightEncoder.getPosition();
-    if(turnState == 0){
-    leftFinalTicks = ticksPerDegree * turnDegrees + leftMotorValue;
-    rightFinalTicks = ticksPerDegree * turnDegrees + rightMotorValue;
-      turnState++;
-  }
-    if(turnState == 1)
-    if(leftFinalTicks != leftMotorValue){
-      if(leftFinalTicks > leftMotorValue){
-      leftMotors.set(moveSpeedMagnitude);
-      }
-      else { leftMotors.set(-moveSpeedMagnitude);}
-    }
-    if(rightFinalTicks != rightMotorValue){
-      if(rightFinalTicks > rightMotorValue){
-        rightMotors.set(-moveSpeedMagnitude);
-      }
-      else { rightMotors.set(-moveSpeedMagnitude);}
-    }
-  }
-
-  public void driveDistance(double driveDistance){
-    double rotations = driveDistance*(10/16);
-    leftMotorFPID.setReference(rotations, ControlType.kPosition);
-    leftMotorBPID.setReference(-rotations, ControlType.kPosition);
-    rightMotorFPID.setReference(rotations, ControlType.kPosition);
-    rightMotorBPID.setReference(-rotations, ControlType.kPosition);
-
-  }
-
-  public boolean collectorRun(){
-    return shootStick.getRawButton(3);
-  }
-  public boolean collectorStop(){
-    return shootStick.getRawButtonReleased(3);
-  }
-  public boolean collectorBack(){
-    return shootStick.getRawButton(5);
-  }
-  public boolean collectorBackStop(){
-    return shootStick.getRawButtonReleased(5);
-  }
-
-  public void stateMachine(){
- 
-    if(state == 0){
-      state++;
-    }
-    if(state == 1){
-      state++;
-    }
-    if(state == 2){
-      state++;
-    }
-    if(state == 3){
-      state++;
-    }
-    if(state == 4){
-      state++;
-    }
-    if(state == 5){
-      state++;
-    }
-    if(state == 6){
-      state++;
-    }
-    if(state == 7){
-      state++;
-    }
-    if(state == 8){
-      state++;
-    }
-  }
-
-  public void owenInit(){
-
-
-    // JOYSTICKS
-    driveStick = new Joystick(0);
-    shootStick = new Joystick(1);
-    flopper = new Talon(2);
-    aimer = new Talon(5);
     
-    // ENCODERS
-    aimerEncoder = new Encoder(0, 1);
+    
+  
+    @Override
+    public void teleopPeriodic() {
+      
+        // read PID coefficients from SmartDashboard
+        double p = SmartDashboard.getNumber("P Gain", 0);
+        double i = SmartDashboard.getNumber("I Gain", 0);
+        double d = SmartDashboard.getNumber("D Gain", 0);
+        double iz = SmartDashboard.getNumber("I Zone", 0);
+        double ff = SmartDashboard.getNumber("Feed Forward", 0);
+        double max = SmartDashboard.getNumber("Max Output", 0);
+        double min = SmartDashboard.getNumber("Min Output", 0);
+        double rotations = SmartDashboard.getNumber("Set Rotations", 0);
 
-  // MOTORS
-  //private final VictorSP m_leftMotor = new VictorSP(0);
-  //private final VictorSP m_rightMotor = new VictorSP(1);
-  leftMotorF = new CANSparkMax(5, MotorType.kBrushless);
-  leftMotorB = new CANSparkMax(6, MotorType.kBrushless);
-  rightMotorF = new CANSparkMax(7, MotorType.kBrushless);
-  rightMotorB = new CANSparkMax(8, MotorType.kBrushless);
+        // if PID coefficients on SmartDashboard have changed, write new values to controller
+        if((p != test_kP)) { test_m_pidController.setP(p); test_kP = p; }
+        if((i != test_kI)) { test_m_pidController.setI(i); test_kI = i; }
+        if((d != test_kD)) { test_m_pidController.setD(d); test_kD = d; }
+        if((iz != test_kIz)) { test_m_pidController.setIZone(iz); test_kIz = iz; }
+        if((ff != test_kFF)) { test_m_pidController.setFF(ff); test_kFF = ff; }
+        if((max != test_kMaxOutput) || (min != test_kMinOutput)) { 
+          test_m_pidController.setOutputRange(min, max); 
+          test_kMinOutput = min; test_kMaxOutput = max; 
+        }
 
+        /**
+         * PIDController objects are commanded to a set point using the 
+         * SetReference() method.
+         * 
+         * The first parameter is the value of the set point, whose units vary
+         * depending on the control type set in the second parameter.
+         * 
+         * The second parameter is the control type can be set to one of four 
+         * parameters:
+         *  com.revrobotics.ControlType.kDutyCycle
+         *  com.revrobotics.ControlType.kPosition
+         *  com.revrobotics.ControlType.kVelocity
+         *  com.revrobotics.ControlType.kVoltage
+         */
+        test_m_pidController.setReference(rotations, ControlType.kPosition);
+        
+        SmartDashboard.putNumber("SetPoint", rotations);
+        SmartDashboard.putNumber("ProcessVariable", test_m_encoder.getPosition());
+        //SmartDashboard.putNumber("Volts", examplePDP.getVoltage());
+    }
 
-  //private final Spark leftShooter = new Spark(8);
-  //private final Spark rightShooter = new Spark(9);
-  //private final Victor collector = new Victor(3)
-   indexer = new CANSparkMax(1, MotorType.kBrushless);
-   leftShooter = new CANSparkMax(2, MotorType.kBrushed);
-   rightShooter = new CANSparkMax(3, MotorType.kBrushed);
-   collector = new CANSparkMax(4, MotorType.kBrushless);
-
-  // ENCODERS
-  indexEncoder = indexer.getEncoder(EncoderType.kHallSensor, 1);
-  leftEncoder = leftMotorF.getEncoder(EncoderType.kHallSensor, 1);
-  rightEncoder = rightMotorF.getEncoder(EncoderType.kHallSensor, 1);
-  collectorEncoder = collector.getEncoder(EncoderType.kHallSensor, 1);
-
-  //PID CONTROLLERS 
-  leftMotorFPID = leftMotorF.getPIDController();
-  leftMotorBPID = leftMotorB.getPIDController(); 
-  rightMotorFPID = rightMotorF.getPIDController();
-  rightMotorBPID = rightMotorB.getPIDController();
-  collectorPID = collector.getPIDController();
-   kP = 0.1; 
-   kI = 1e-4;
-   kD = 1; 
-   kIz = 0; 
-   kFF = 0; 
-   kMaxOutput = .25; 
-   kMinOutput = -.25;
-
-   // DRIVETRAIN
-  //private final DifferentialDrive m_robotDrive = new DifferentialDrive(m_leftMotor, m_rightMotor);
-  leftMotors = new SpeedControllerGroup(leftMotorF, leftMotorB);
-  rightMotors = new SpeedControllerGroup(rightMotorF, rightMotorB);
-  m_robotDrive = new DifferentialDrive(leftMotors, rightMotors);
-  // NETWORK TABLES
-  inst = NetworkTableInstance.getDefault();
-  table = inst.getTable("limelight");
-  tx = table.getEntry("tx");
-  ty = table.getEntry("ty");
-  ta = table.getEntry("ta");
-
-        //SENSORS
-    CameraServer.getInstance().startAutomaticCapture();
-    //m_colorMatcher.addColorMatch(kYellowTarget);
-    /*distOnboard = new Rev2mDistanceSensor(Port.kOnboard);
-    distOnboard.setRangeProfile(RangeProfile.kHighSpeed);
-    distOnboard.setRangeProfile(RangeProfile.kHighAccuracy);
-    distOnboard.setRangeProfile(RangeProfile.kLongRange);
-    distOnboard.setRangeProfile(RangeProfile.kDefault);
-    //enable the Distance Sensor background Thread
-    distOnboard.setAutomaticMode(true);*/
-    //CAN AND ENCODERS
-    collector.restoreFactoryDefaults();
-    aimerEncoder.setDistancePerPulse(1.0/650);
-    resetIndexer();
-    resetLeft();
-
-    ballCount = 0;
-    //LIMIT SWITCHES
-    upSwitch = new DigitalInput(2);
-    downSwitch = new DigitalInput(3);
-
-    leftMotorFPID.setP(kP);
-    leftMotorFPID.setI(kI);
-    leftMotorFPID.setD(kD);
-    leftMotorFPID.setIZone(kIz);
-    leftMotorFPID.setFF(kFF);
-    leftMotorFPID.setOutputRange(kMinOutput, kMaxOutput);
-
-    leftMotorBPID.setP(kP);
-    leftMotorBPID.setI(kI);
-    leftMotorBPID.setD(kD);
-    leftMotorBPID.setIZone(kIz);
-    leftMotorBPID.setFF(kFF);
-    leftMotorBPID.setOutputRange(kMinOutput, kMaxOutput);
-
-    rightMotorFPID.setP(kP);
-    rightMotorFPID.setI(kI);
-    rightMotorFPID.setD(kD);
-    rightMotorFPID.setIZone(kIz);
-    rightMotorFPID.setFF(kFF);
-    rightMotorFPID.setOutputRange(kMinOutput, kMaxOutput);
-
-    rightMotorBPID.setP(kP);
-    rightMotorBPID.setI(kI);
-    rightMotorBPID.setD(kD);
-    rightMotorBPID.setIZone(kIz);
-    rightMotorBPID.setFF(kFF);
-    rightMotorBPID.setOutputRange(kMinOutput, kMaxOutput);
-
-    collectorPID.setP(kP);
-    collectorPID.setI(kI);
-    collectorPID.setD(kD);
-    collectorPID.setIZone(kIz);
-    collectorPID.setFF(kFF);
-    collectorPID.setOutputRange(kMinOutput, kMaxOutput);
-
-    SmartDashboard.putNumber("P Gain", kP);
-    SmartDashboard.putNumber("I Gain", kI);
-    SmartDashboard.putNumber("D Gain", kD);
-    SmartDashboard.putNumber("I Zone", kIz);
-    SmartDashboard.putNumber("Feed Forward", kFF);
-    SmartDashboard.putNumber("Max Output", kMaxOutput);
-    SmartDashboard.putNumber("Min Output", kMinOutput);
-    SmartDashboard.putNumber("Set Rotations", 0);
-
-    state = 0;
-
-    t.start();
-    //this is right
-  }
 }
