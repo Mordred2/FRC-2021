@@ -43,8 +43,8 @@ import edu.wpi.first.wpilibj.SpeedControllerGroup;
 
 public class Robot extends TimedRobot {
   // JOYSTICKS
-  private Joystick driveStick = new Joystick(0);
-  private Joystick shootStick = new Joystick(1);
+  private Joystick driveStick;
+  private Joystick shootStick;
   // MOTORS
   //private final VictorSP m_leftMotor = new VictorSP(0);
   //private final VictorSP m_rightMotor = new VictorSP(1);
@@ -57,15 +57,15 @@ public class Robot extends TimedRobot {
   //private final Spark leftShooter = new Spark(8);
   //private final Spark rightShooter = new Spark(9);
   //private final Victor collector = new Victor(3);
-  private Talon flopper = new Talon(2);
-  private Talon aimer = new Talon(5);
+  private Talon flopper;
+  private Talon aimer;
   private CANSparkMax indexer;
   private CANSparkMax leftShooter;
   private CANSparkMax rightShooter;
   private CANSparkMax collector;
 
   // ENCODERS
-  private Encoder aimerEncoder = new Encoder(0, 1);
+  private Encoder aimerEncoder;
   private CANEncoder indexEncoder;
   private CANEncoder leftEncoder;
   private CANEncoder rightEncoder;
@@ -127,7 +127,17 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-  owenInit();
+    
+  }
+
+  @Override
+  public void autonomousInit(){
+    owenInit();
+  }
+
+  @Override
+  public void teleopInit(){
+    owenInit();
   }
 
 public void autonomousPeriodic() {
