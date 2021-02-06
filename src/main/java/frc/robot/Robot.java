@@ -36,6 +36,9 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.ColorSensorV3;
 import com.revrobotics.ColorMatchResult;
 import com.revrobotics.ColorMatch;
+
+import java.lang.ProcessBuilder.Redirect;
+
 import com.revrobotics.*;
 import com.revrobotics.Rev2mDistanceSensor.Port;
 import com.revrobotics.Rev2mDistanceSensor.RangeProfile;
@@ -125,14 +128,14 @@ public class Robot extends TimedRobot {
   NetworkTableEntry ty;
   NetworkTableEntry ta;
   //ADDITIONAL SENSORS
-  /*private final I2C.Port i2cPort = I2C.Port.kOnboard;
+  private final I2C.Port i2cPort = I2C.Port.kOnboard;
   private final ColorSensorV3 m_colorSensor = new ColorSensorV3(i2cPort);
-  private final Color kYellowTarget = ColorMatch.makeColor(0.361, 0.524, 0.113);
-
   private final ColorMatch m_colorMatcher = new ColorMatch();
-  private Rev2mDistanceSensor distOnboard; 
+  private final Color kYellowTarget = ColorMatch.makeColor(0.361, 0.424, 0.023);
+  private final Color kOverYellow = ColorMatch.makeColor(0.361, 0.4, 0.2);
+  private double IR = m_colorSensor.getIR();
 
-  private final ColorMatch m_colorMatcher = new ColorMatch();
+  /*private Rev2mDistanceSensor distOnboard; 
   private Rev2mDistanceSensor distOnboard; 
   Gyro euro = new AnalogGyro(0);*/
   // VARIABLES
@@ -180,7 +183,7 @@ public void autonomousPeriodic() {
 
     //More Sensing
    // rangeSensor();
-    //colorSensor();
+    colorSensor();
 
     // SMART DASHBOARD
     SmartDashboard.putNumber("LimelightX", x);
@@ -216,6 +219,12 @@ public void autonomousPeriodic() {
   runCollector(.4);
   if(collectorBack())
   runCollector(-.75);
+  if(collectorStop() || collectorBackStop())
+  runCollector(0);
+  if(indexerBack())
+  runIndexer(-.5);
+  if (indexerBackStop())
+  runIndexer(0);
   if(collectorStop() || collectorBackStop())
   runCollector(0);
   if (pleaseStop())
@@ -314,7 +323,7 @@ public void autonomousPeriodic() {
   }
 
   public void drive(double speed, double turn, boolean quickTurn) {
-    m_robotDrive.curvatureDrive(speed, 0, false);
+    m_robotDrive.curvatureDrive(speed, turn, quickTurn);
   }
 
   /*public void rangeSensor(){
@@ -324,19 +333,25 @@ public void autonomousPeriodic() {
     }
   }*/
 
-  /*public void colorSensor(){
+  public void colorSensor(){
     Color detectedColor = m_colorSensor.getColor();
     String colorString;
-    ColorMatchResult match = m_colorMatcher.matchColor(detectedColor);
+    ColorMatchResult match = m_colorMatcher.matchClosestColor(detectedColor);
   
     if (match.color == kYellowTarget) {
       colorString = "Yes";
+    } else if(match.color == kOverYellow) {
+      colorString = "Over";
     } else {
       colorString = "No";
     }
+
     SmartDashboard.putNumber("Confidence", match.confidence);
     SmartDashboard.putString("Index Now", colorString);
-  }*/
+    SmartDashboard.putNumber("Red", detectedColor.red);
+    SmartDashboard.putNumber("Green", detectedColor.green);
+    SmartDashboard.putNumber("Blue", detectedColor.blue);
+  }
 
   public void indexForward(double wantedIndexIn, double indexSpeedMagnitude, double indexPosition){
     double wantedIndexForward = wantedIndexIn;
@@ -452,12 +467,6 @@ public void autonomousPeriodic() {
     aimer.set(0);
   }
 
-  public void reverseIndex(){
-    if(shootStick.getRawButton(9)){
-      runIndexer(.5);
-    }
-  }
-
   public void manualAim(){
     if(shootStick.getY() >= .5 || shootStick.getY() <= -.5)
     aimer.set(-shootStick.getY());
@@ -537,6 +546,12 @@ public void autonomousPeriodic() {
   }
   public boolean collectorBack(){
     return shootStick.getRawButton(5);
+  }
+  public boolean indexerBack(){
+    return shootStick.getRawButton(9);
+  }
+  public boolean indexerBackStop(){
+    return shootStick.getRawButtonReleased(9);
   }
   public boolean collectorBackStop(){
     return shootStick.getRawButtonReleased(5);
@@ -638,7 +653,8 @@ public void autonomousPeriodic() {
 
         //SENSORS
     CameraServer.getInstance().startAutomaticCapture();
-    //m_colorMatcher.addColorMatch(kYellowTarget);
+    m_colorMatcher.addColorMatch(kYellowTarget);
+    m_colorMatcher.addColorMatch(kOverYellow);
     /*distOnboard = new Rev2mDistanceSensor(Port.kOnboard);
     distOnboard.setRangeProfile(RangeProfile.kHighSpeed);
     distOnboard.setRangeProfile(RangeProfile.kHighAccuracy);
