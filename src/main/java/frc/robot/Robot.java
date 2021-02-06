@@ -153,22 +153,205 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    
+     // JOYSTICKS
+     driveStick = new Joystick(0);
+     shootStick = new Joystick(1);
+     flopper = new Talon(2);
+     aimer = new Talon(5);
+     
+     // ENCODERS
+     aimerEncoder = new Encoder(0, 1);
+ 
+     // MOTORS
+     //private final VictorSP m_leftMotor = new VictorSP(0);
+     //private final VictorSP m_rightMotor = new VictorSP(1);
+     leftMotorF = new CANSparkMax(5, MotorType.kBrushless);
+     leftMotorB = new CANSparkMax(6, MotorType.kBrushless);
+     rightMotorF = new CANSparkMax(7, MotorType.kBrushless);
+     rightMotorB = new CANSparkMax(8, MotorType.kBrushless);
+ 
+ 
+     //private final Spark leftShooter = new Spark(8);
+     //private final Spark rightShooter = new Spark(9);
+     //private final Victor collector = new Victor(3)
+     indexer = new CANSparkMax(1, MotorType.kBrushless);
+     leftShooter = new CANSparkMax(2, MotorType.kBrushed);
+     rightShooter = new CANSparkMax(3, MotorType.kBrushed);
+     collector = new CANSparkMax(4, MotorType.kBrushless);
+ 
+     // ENCODERS
+     indexEncoder = indexer.getEncoder(EncoderType.kHallSensor, 1);
+     leftEncoderF = leftMotorF.getEncoder(EncoderType.kHallSensor, 1);
+     leftEncoderB = leftMotorB.getEncoder(EncoderType.kHallSensor, 1);
+     rightEncoderF = rightMotorF.getEncoder(EncoderType.kHallSensor, 1);
+     rightEncoderB = rightMotorB.getEncoder(EncoderType.kHallSensor, 1);
+     collectorEncoder = collector.getEncoder(EncoderType.kHallSensor, 1);
+ 
+     //PID CONTROLLERS 
+     leftMotorFPID = leftMotorF.getPIDController();
+     leftMotorBPID = leftMotorB.getPIDController(); 
+     rightMotorFPID = rightMotorF.getPIDController();
+     rightMotorBPID = rightMotorB.getPIDController();
+     collectorPID = collector.getPIDController();
+     drive_kP = 0.1; 
+     drive_kI = 1e-4;
+     drive_kD = 1; 
+     drive_kIz = 0; 
+     drive_kFF = 0; 
+     drive_kMaxOutput = .25; 
+     drive_kMinOutput = -.25;
+ 
+     // DRIVETRAIN
+     //private final DifferentialDrive m_robotDrive = new DifferentialDrive(m_leftMotor, m_rightMotor);
+     leftMotors = new SpeedControllerGroup(leftMotorF, leftMotorB);
+     rightMotors = new SpeedControllerGroup(rightMotorF, rightMotorB);
+     m_robotDrive = new DifferentialDrive(leftMotors, rightMotors);
+     // NETWORK TABLES
+     inst = NetworkTableInstance.getDefault();
+     table = inst.getTable("limelight");
+     tx = table.getEntry("tx");
+     ty = table.getEntry("ty");
+     ta = table.getEntry("ta");
+ 
+         //SENSORS
+     CameraServer.getInstance().startAutomaticCapture();
+     m_colorMatcher.addColorMatch(kYellowTarget);
+     m_colorMatcher.addColorMatch(kOverYellow);
+     /*distOnboard = new Rev2mDistanceSensor(Port.kOnboard);
+     distOnboard.setRangeProfile(RangeProfile.kHighSpeed);
+     distOnboard.setRangeProfile(RangeProfile.kHighAccuracy);
+     distOnboard.setRangeProfile(RangeProfile.kLongRange);
+     distOnboard.setRangeProfile(RangeProfile.kDefault);
+     //enable the Distance Sensor background Thread
+     distOnboard.setAutomaticMode(true);*/
+     //CAN AND ENCODERS
+     collector.restoreFactoryDefaults();
+     aimerEncoder.setDistancePerPulse(1.0/650);
+     resetIndexer();
+     resetDriveEncoders();
+ 
+     ballCount = 0;
+     //LIMIT SWITCHES
+     upSwitch = new DigitalInput(2);
+     downSwitch = new DigitalInput(3);
+ 
+     leftMotorFPID.setP(drive_kP,0);
+     leftMotorFPID.setI(drive_kI,0);
+     leftMotorFPID.setD(drive_kD,0);
+     leftMotorFPID.setIZone(drive_kIz,0);
+     leftMotorFPID.setFF(drive_kFF,0);
+     leftMotorFPID.setSmartMotionAllowedClosedLoopError(drive_encoderError,0);
+     leftMotorFPID.setOutputRange(drive_kMinOutput, drive_kMaxOutput,0);
+     
+     leftMotorBPID.setP(drive_kP,0);
+     leftMotorBPID.setI(drive_kI,0);
+     leftMotorBPID.setD(drive_kD,0);
+     leftMotorBPID.setIZone(drive_kIz,0);
+     leftMotorBPID.setFF(drive_kFF,0);
+     leftMotorBPID.setSmartMotionAllowedClosedLoopError(drive_encoderError,0);
+     leftMotorBPID.setOutputRange(drive_kMinOutput, drive_kMaxOutput,0);
+ 
+     rightMotorFPID.setP(drive_kP,0);
+     rightMotorFPID.setI(drive_kI,0);
+     rightMotorFPID.setD(drive_kD,0);
+     rightMotorFPID.setIZone(drive_kIz,0);
+     rightMotorFPID.setFF(drive_kFF,0);
+     rightMotorFPID.setSmartMotionAllowedClosedLoopError(drive_encoderError,0);
+     rightMotorFPID.setOutputRange(drive_kMinOutput, drive_kMaxOutput,0);
+ 
+     rightMotorBPID.setP(drive_kP,0);
+     rightMotorBPID.setI(drive_kI,0);
+     rightMotorBPID.setD(drive_kD,0);
+     rightMotorBPID.setIZone(drive_kIz,0);
+     rightMotorBPID.setFF(drive_kFF,0);
+     rightMotorBPID.setSmartMotionAllowedClosedLoopError(drive_encoderError,0);
+     rightMotorBPID.setOutputRange(drive_kMinOutput, drive_kMaxOutput,0);
+ 
+     collector_kP = 0.1; 
+     collector_kI = 1e-4;
+     collector_kD = 1; 
+     collector_kIz = 0; 
+     collector_kFF = 0; 
+     collector_kMaxOutput = .25; 
+     collector_kMinOutput = -.25;
+     
+     collectorPID.setP(collector_kP,0);
+     collectorPID.setI(collector_kI,0);
+     collectorPID.setD(collector_kD,0);
+     collectorPID.setIZone(collector_kIz,0);
+     collectorPID.setFF(collector_kFF,0);
+     collectorPID.setSmartMotionAllowedClosedLoopError(collector_encoderError,0);
+     collectorPID.setOutputRange(collector_kMinOutput, collector_kMaxOutput);
+ 
+     SmartDashboard.putNumber("Drive P Gain", drive_kP);
+     SmartDashboard.putNumber("Drive I Gain", drive_kI);
+     SmartDashboard.putNumber("Drive D Gain", drive_kD);
+     SmartDashboard.putNumber("Drive I Zone", drive_kIz);
+     SmartDashboard.putNumber("Drive Feed Forward", drive_kFF);
+     SmartDashboard.putNumber("Drive Max Output", drive_kMaxOutput);
+     SmartDashboard.putNumber("Drive Min Output", drive_kMinOutput);
+     SmartDashboard.putNumber("Drive Error", drive_encoderError);
+     SmartDashboard.putNumber("Drive Left Front Position", 0);
+     SmartDashboard.putNumber("Drive Left Back Position", 0);
+     SmartDashboard.putNumber("Drive Right Front Position", 0);
+     SmartDashboard.putNumber("Drive Right Back Position", 0);
+     SmartDashboard.putNumber("Drive Left Front Target", 0);
+     SmartDashboard.putNumber("Drive Left Back Target", 0);
+     SmartDashboard.putNumber("Drive Right Front Target", 0);
+     SmartDashboard.putNumber("Drive Right Back Target", 0);
+ 
+     SmartDashboard.putNumber("Collector P Gain", collector_kP);
+     SmartDashboard.putNumber("Collector I Gain", collector_kI);
+     SmartDashboard.putNumber("Collector D Gain", collector_kD);
+     SmartDashboard.putNumber("Collector I Zone", collector_kIz);
+     SmartDashboard.putNumber("Collector Feed Forward", collector_kFF);
+     SmartDashboard.putNumber("Collector Max Output", collector_kMaxOutput);
+     SmartDashboard.putNumber("Collector Min Output", collector_kMinOutput);
+     SmartDashboard.putNumber("Collector Error", collector_encoderError);
+     SmartDashboard.putNumber("Collector Position", 0);
+     SmartDashboard.putNumber("Collector Target", 0);
+ 
+     state = 0;
+ 
+     t.start();
+     //this is right
+   
   }
 
   @Override
   public void autonomousInit(){
-    owenInit();
   }
 
   @Override
   public void teleopInit(){
-    owenInit();
   }
 
   @Override
 public void autonomousPeriodic() {
+  if(state == 0){
+    driveDistance(12, 0);
+    state++;
+  }
+  if(state == 1){
+    if(driveComplete() == true){
+    state++;
+    }
+  }
   SmartDashboard.putNumber("State", state);
+  SmartDashboard.putNumber("Drive State", drive_state);
+  SmartDashboard.putNumber("Left Front Encoder", leftEncoderF.getPosition());
+  SmartDashboard.putNumber("Left Back Encoder", leftEncoderB.getPosition());
+  SmartDashboard.putNumber("Right Front Encoder", rightEncoderF.getPosition());
+  SmartDashboard.putNumber("Right Back Encoder", rightEncoderB.getPosition());
+  SmartDashboard.putNumber("Drive Left Front Position", leftEncoderF.getPosition());
+  SmartDashboard.putNumber("Drive Left Back Position", leftEncoderB.getPosition());
+  SmartDashboard.putNumber("Drive Right Front Position", rightEncoderF.getPosition());
+  SmartDashboard.putNumber("Drive Right Back Position", rightEncoderB.getPosition());
+  SmartDashboard.putNumber("Drive Left Front Target", drive_leftEncoderFFinalPosition);
+  SmartDashboard.putNumber("Drive Left Back Target", drive_leftEncoderBFinalPosition);
+  SmartDashboard.putNumber("Drive Right Front Target", drive_rightEncoderFFinalPosition);
+  SmartDashboard.putNumber("Drive Right Back Target", drive_rightEncoderBFinalPosition);
+
 }
 
   public void teleopPeriodic() {
@@ -588,175 +771,9 @@ public void autonomousPeriodic() {
     }
   }
 
-  public void owenInit(){
 
-
-    // JOYSTICKS
-    driveStick = new Joystick(0);
-    shootStick = new Joystick(1);
-    flopper = new Talon(2);
-    aimer = new Talon(5);
-    
-    // ENCODERS
-    aimerEncoder = new Encoder(0, 1);
-
-    // MOTORS
-    //private final VictorSP m_leftMotor = new VictorSP(0);
-    //private final VictorSP m_rightMotor = new VictorSP(1);
-    leftMotorF = new CANSparkMax(5, MotorType.kBrushless);
-    leftMotorB = new CANSparkMax(6, MotorType.kBrushless);
-    rightMotorF = new CANSparkMax(7, MotorType.kBrushless);
-    rightMotorB = new CANSparkMax(8, MotorType.kBrushless);
-
-
-    //private final Spark leftShooter = new Spark(8);
-    //private final Spark rightShooter = new Spark(9);
-    //private final Victor collector = new Victor(3)
-    indexer = new CANSparkMax(1, MotorType.kBrushless);
-    leftShooter = new CANSparkMax(2, MotorType.kBrushed);
-    rightShooter = new CANSparkMax(3, MotorType.kBrushed);
-    collector = new CANSparkMax(4, MotorType.kBrushless);
-
-    // ENCODERS
-    indexEncoder = indexer.getEncoder(EncoderType.kHallSensor, 1);
-    leftEncoderF = leftMotorF.getEncoder(EncoderType.kHallSensor, 1);
-    leftEncoderB = leftMotorB.getEncoder(EncoderType.kHallSensor, 1);
-    rightEncoderF = rightMotorF.getEncoder(EncoderType.kHallSensor, 1);
-    rightEncoderB = rightMotorB.getEncoder(EncoderType.kHallSensor, 1);
-    collectorEncoder = collector.getEncoder(EncoderType.kHallSensor, 1);
-
-    //PID CONTROLLERS 
-    leftMotorFPID = leftMotorF.getPIDController();
-    leftMotorBPID = leftMotorB.getPIDController(); 
-    rightMotorFPID = rightMotorF.getPIDController();
-    rightMotorBPID = rightMotorB.getPIDController();
-    collectorPID = collector.getPIDController();
-    drive_kP = 0.1; 
-    drive_kI = 1e-4;
-    drive_kD = 1; 
-    drive_kIz = 0; 
-    drive_kFF = 0; 
-    drive_kMaxOutput = .25; 
-    drive_kMinOutput = -.25;
-
-    // DRIVETRAIN
-    //private final DifferentialDrive m_robotDrive = new DifferentialDrive(m_leftMotor, m_rightMotor);
-    leftMotors = new SpeedControllerGroup(leftMotorF, leftMotorB);
-    rightMotors = new SpeedControllerGroup(rightMotorF, rightMotorB);
-    m_robotDrive = new DifferentialDrive(leftMotors, rightMotors);
-    // NETWORK TABLES
-    inst = NetworkTableInstance.getDefault();
-    table = inst.getTable("limelight");
-    tx = table.getEntry("tx");
-    ty = table.getEntry("ty");
-    ta = table.getEntry("ta");
-
-        //SENSORS
-    CameraServer.getInstance().startAutomaticCapture();
-    m_colorMatcher.addColorMatch(kYellowTarget);
-    m_colorMatcher.addColorMatch(kOverYellow);
-    /*distOnboard = new Rev2mDistanceSensor(Port.kOnboard);
-    distOnboard.setRangeProfile(RangeProfile.kHighSpeed);
-    distOnboard.setRangeProfile(RangeProfile.kHighAccuracy);
-    distOnboard.setRangeProfile(RangeProfile.kLongRange);
-    distOnboard.setRangeProfile(RangeProfile.kDefault);
-    //enable the Distance Sensor background Thread
-    distOnboard.setAutomaticMode(true);*/
-    //CAN AND ENCODERS
-    collector.restoreFactoryDefaults();
-    aimerEncoder.setDistancePerPulse(1.0/650);
-    resetIndexer();
-    resetDriveEncoders();
-
-    ballCount = 0;
-    //LIMIT SWITCHES
-    upSwitch = new DigitalInput(2);
-    downSwitch = new DigitalInput(3);
-
-    leftMotorFPID.setP(drive_kP,0);
-    leftMotorFPID.setI(drive_kI,0);
-    leftMotorFPID.setD(drive_kD,0);
-    leftMotorFPID.setIZone(drive_kIz,0);
-    leftMotorFPID.setFF(drive_kFF,0);
-    leftMotorFPID.setSmartMotionAllowedClosedLoopError(drive_encoderError,0);
-    leftMotorFPID.setOutputRange(drive_kMinOutput, drive_kMaxOutput,0);
-    
-    leftMotorBPID.setP(drive_kP,0);
-    leftMotorBPID.setI(drive_kI,0);
-    leftMotorBPID.setD(drive_kD,0);
-    leftMotorBPID.setIZone(drive_kIz,0);
-    leftMotorBPID.setFF(drive_kFF,0);
-    leftMotorBPID.setSmartMotionAllowedClosedLoopError(drive_encoderError,0);
-    leftMotorBPID.setOutputRange(drive_kMinOutput, drive_kMaxOutput,0);
-
-    rightMotorFPID.setP(drive_kP,0);
-    rightMotorFPID.setI(drive_kI,0);
-    rightMotorFPID.setD(drive_kD,0);
-    rightMotorFPID.setIZone(drive_kIz,0);
-    rightMotorFPID.setFF(drive_kFF,0);
-    rightMotorFPID.setSmartMotionAllowedClosedLoopError(drive_encoderError,0);
-    rightMotorFPID.setOutputRange(drive_kMinOutput, drive_kMaxOutput,0);
-
-    rightMotorBPID.setP(drive_kP,0);
-    rightMotorBPID.setI(drive_kI,0);
-    rightMotorBPID.setD(drive_kD,0);
-    rightMotorBPID.setIZone(drive_kIz,0);
-    rightMotorBPID.setFF(drive_kFF,0);
-    rightMotorBPID.setSmartMotionAllowedClosedLoopError(drive_encoderError,0);
-    rightMotorBPID.setOutputRange(drive_kMinOutput, drive_kMaxOutput,0);
-
-    collector_kP = 0.1; 
-    collector_kI = 1e-4;
-    collector_kD = 1; 
-    collector_kIz = 0; 
-    collector_kFF = 0; 
-    collector_kMaxOutput = .25; 
-    collector_kMinOutput = -.25;
-    
-    collectorPID.setP(collector_kP,0);
-    collectorPID.setI(collector_kI,0);
-    collectorPID.setD(collector_kD,0);
-    collectorPID.setIZone(collector_kIz,0);
-    collectorPID.setFF(collector_kFF,0);
-    collectorPID.setSmartMotionAllowedClosedLoopError(collector_encoderError,0);
-    collectorPID.setOutputRange(collector_kMinOutput, collector_kMaxOutput);
-
-    SmartDashboard.putNumber("Drive P Gain", drive_kP);
-    SmartDashboard.putNumber("Drive I Gain", drive_kI);
-    SmartDashboard.putNumber("Drive D Gain", drive_kD);
-    SmartDashboard.putNumber("Drive I Zone", drive_kIz);
-    SmartDashboard.putNumber("Drive Feed Forward", drive_kFF);
-    SmartDashboard.putNumber("Drive Max Output", drive_kMaxOutput);
-    SmartDashboard.putNumber("Drive Min Output", drive_kMinOutput);
-    SmartDashboard.putNumber("Drive Error", drive_encoderError);
-    SmartDashboard.putNumber("Drive Left Front Position", 0);
-    SmartDashboard.putNumber("Drive Left Back Position", 0);
-    SmartDashboard.putNumber("Drive Right Front Position", 0);
-    SmartDashboard.putNumber("Drive Right Back Position", 0);
-    SmartDashboard.putNumber("Drive Left Front Target", 0);
-    SmartDashboard.putNumber("Drive Left Back Target", 0);
-    SmartDashboard.putNumber("Drive Right Front Target", 0);
-    SmartDashboard.putNumber("Drive Right Back Target", 0);
-
-    SmartDashboard.putNumber("Collector P Gain", collector_kP);
-    SmartDashboard.putNumber("Collector I Gain", collector_kI);
-    SmartDashboard.putNumber("Collector D Gain", collector_kD);
-    SmartDashboard.putNumber("Collector I Zone", collector_kIz);
-    SmartDashboard.putNumber("Collector Feed Forward", collector_kFF);
-    SmartDashboard.putNumber("Collector Max Output", collector_kMaxOutput);
-    SmartDashboard.putNumber("Collector Min Output", collector_kMinOutput);
-    SmartDashboard.putNumber("Collector Error", collector_encoderError);
-    SmartDashboard.putNumber("Collector Position", 0);
-    SmartDashboard.putNumber("Collector Target", 0);
-
-    state = 0;
-
-    t.start();
-    //this is right
-  }
   @Override
   public void testInit(){
-    owenInit();
   }
   @Override
   public void testPeriodic(){
