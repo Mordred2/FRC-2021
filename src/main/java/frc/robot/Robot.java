@@ -102,7 +102,7 @@ public class Robot extends TimedRobot {
   double drive_rightEncoderBFinalPosition = 0; 
   double drive_ticksPerDegree = 100;
   double drive_ticksPerInch = 100;
-  double drive_encoderError = 100;
+  double drive_encoderError = 0;
 
   public double collector_kP ; 
   public double collector_kI ;
@@ -311,7 +311,6 @@ public class Robot extends TimedRobot {
      SmartDashboard.putNumber("Collector Position", 0);
      SmartDashboard.putNumber("Collector Target", 0);
  
-     state = 0;
  
      t.start();
      //this is right
@@ -320,6 +319,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit(){
+    state = 0;
   }
 
   @Override
@@ -711,13 +711,13 @@ public void autonomousPeriodic() {
     double rightEncoderFValue = rightEncoderF.getPosition();
     double rightEncoderBValue = rightEncoderB.getPosition();
     drive_leftEncoderFFinalPosition = leftEncoderFValue + (drive_ticksPerInch * driveDistanceInch);
-    drive_leftEncoderBFinalPosition = leftEncoderBValue - (drive_ticksPerInch * driveDistanceInch);
-    drive_rightEncoderFFinalPosition = rightEncoderFValue + (drive_ticksPerInch * driveDistanceInch);
+    drive_leftEncoderBFinalPosition = leftEncoderBValue + (drive_ticksPerInch * driveDistanceInch);
+    drive_rightEncoderFFinalPosition = rightEncoderFValue - (drive_ticksPerInch * driveDistanceInch);
     drive_rightEncoderBFinalPosition = rightEncoderBValue - (drive_ticksPerInch * driveDistanceInch);
     leftMotorFPID.setReference(drive_leftEncoderFFinalPosition, ControlType.kPosition,slot);
-    leftMotorFPID.setReference(drive_leftEncoderFFinalPosition, ControlType.kPosition, slot);
-    leftMotorFPID.setReference(drive_leftEncoderFFinalPosition, ControlType.kPosition, slot);
-    leftMotorFPID.setReference(drive_leftEncoderFFinalPosition, ControlType.kPosition, slot);
+    leftMotorBPID.setReference(drive_leftEncoderBFinalPosition, ControlType.kPosition, slot);
+    rightMotorFPID.setReference(drive_rightEncoderFFinalPosition, ControlType.kPosition, slot);
+    rightMotorBPID.setReference(drive_rightEncoderBFinalPosition, ControlType.kPosition, slot);
     drive_state = 1;
   }
 
@@ -774,6 +774,8 @@ public void autonomousPeriodic() {
 
   @Override
   public void testInit(){
+    resetDriveEncoders();
+    state = 0;
   }
   @Override
   public void testPeriodic(){
@@ -800,7 +802,6 @@ public void autonomousPeriodic() {
     SmartDashboard.putNumber("Drive Left Back Target", drive_leftEncoderBFinalPosition);
     SmartDashboard.putNumber("Drive Right Front Target", drive_rightEncoderFFinalPosition);
     SmartDashboard.putNumber("Drive Right Back Target", drive_rightEncoderBFinalPosition);
-  
   }
 
 }
