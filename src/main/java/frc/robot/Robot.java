@@ -100,9 +100,9 @@ public class Robot extends TimedRobot {
   double drive_leftEncoderBFinalPosition = 0; 
   double drive_rightEncoderFFinalPosition = 0; 
   double drive_rightEncoderBFinalPosition = 0; 
-  double drive_ticksPerDegree = 100;
+  double drive_ticksPerDegree = 0.11;
   double drive_ticksPerInch = 1;
-  double drive_encoderError = 0;
+  double drive_encoderError = .4;
 
   public double collector_kP ; 
   public double collector_kI ;
@@ -213,7 +213,7 @@ public class Robot extends TimedRobot {
      collector.restoreFactoryDefaults();
      aimerEncoder.setDistancePerPulse(1.0/650);
      resetIndexer();
-     resetDriveEncoders();
+
  
      ballCount = 0;
      //LIMIT SWITCHES
@@ -595,8 +595,8 @@ public class Robot extends TimedRobot {
     double rightEncoderBValue = rightEncoderB.getPosition();
     drive_leftEncoderFFinalPosition = leftEncoderFValue + (drive_ticksPerDegree * turnDegrees);
     drive_leftEncoderBFinalPosition = leftEncoderBValue + (drive_ticksPerDegree * turnDegrees);
-    drive_rightEncoderFFinalPosition = rightEncoderFValue - (drive_ticksPerDegree * turnDegrees);
-    drive_rightEncoderBFinalPosition = rightEncoderBValue - (drive_ticksPerDegree * turnDegrees);
+    drive_rightEncoderFFinalPosition = rightEncoderFValue + (drive_ticksPerDegree * turnDegrees);
+    drive_rightEncoderBFinalPosition = rightEncoderBValue + (drive_ticksPerDegree * turnDegrees);
     leftMotorFPID.setReference(drive_leftEncoderFFinalPosition, ControlType.kPosition, slot);
     leftMotorBPID.setReference(drive_leftEncoderBFinalPosition, ControlType.kPosition, slot);
     rightMotorFPID.setReference(drive_rightEncoderFFinalPosition, ControlType.kPosition, slot);
@@ -621,9 +621,6 @@ public class Robot extends TimedRobot {
     }
     if (Math.abs(drive_rightEncoderBFinalPosition - rightEncoderBValue) > drive_encoderError){
       drivePositionreached = false;
-    }
-    if (drivePositionreached){
-      drive_state = 2;
     }
     return drivePositionreached;
   }
@@ -744,7 +741,8 @@ public class Robot extends TimedRobot {
 
   public void drivePidTestInit(){
     //PID CONTROLLERS 
-     
+    resetDriveEncoders();
+    
     leftMotorFPID = leftMotorF.getPIDController();
     leftMotorBPID = leftMotorB.getPIDController(); 
     rightMotorFPID = rightMotorF.getPIDController();
@@ -757,26 +755,40 @@ public class Robot extends TimedRobot {
     rightMotorB.restoreFactoryDefaults();
 
 
-    drive_kP = 0.5; //0.1; 
+    drive_kP = 0.4; //0.1; 
     drive_kI = 0; //1e-4;
     drive_kD = 0; //1; 
     drive_kIz = 0; 
     drive_kFF = 0; 
     drive_kMaxOutput = .15; 
     drive_kMinOutput = -.15;
-    drive_encoderError = 0;
+    drive_encoderError = .4;
     setDrivePids(0,drive_kP, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, drive_kMaxOutput, drive_kMinOutput);
     state = 0;
     drive_state = 0;
     resetDriveEncoders();
   }
-
+  double time;
   public void drivePidTestPeriodic(){
     if(state == 0){
-      driveDistance(drivePidTestInches, 0);
+      //driveDistance(drivePidTestInches, 0);
       state++;
     }
     if(state == 1){
+     /* SmartDashboard.putBoolean("Drive Complete", driveComplete());
+
+      driveComplete();
+      if(driveComplete() == true){*/
+      state++;
+      }
+    if(state == 2){
+      turnDegrees(-180, 0);
+      state++;
+    }
+    if(state == 3){
+      SmartDashboard.putBoolean("Drive Complete", driveComplete());
+
+      driveComplete();
       if(driveComplete() == true){
       state++;
       }
