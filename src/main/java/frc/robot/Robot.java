@@ -100,7 +100,7 @@ public class Robot extends TimedRobot {
   double drive_leftEncoderBFinalPosition = 0; 
   double drive_rightEncoderFFinalPosition = 0; 
   double drive_rightEncoderBFinalPosition = 0; 
-  double drive_ticksPerDegree = 0.114;
+  double drive_ticksPerDegree = 0.11;
   double drive_ticksPerInch = 1;
   double drive_encoderError = .4;
 
@@ -143,9 +143,11 @@ public class Robot extends TimedRobot {
   public boolean isCollectorBackwards;
   public boolean isIndexerBackwards;
   public boolean readyToIndex;
+  public boolean isArcRunning;
   public double wantedIndex;
   public double shootIndex;
   public double ballCount;
+  public double wheelWidth;
 
   public double state;
   final Timer t = new Timer();
@@ -261,13 +263,13 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit(){
-    autonInit();
+    drivePidTestInit();
     
   }
 
   @Override
   public void autonomousPeriodic() {
-    autonPeriodic();
+    drivePidTestPeriodic();
   }
 
   @Override
@@ -605,22 +607,25 @@ public class Robot extends TimedRobot {
   }
 
   public boolean driveComplete(){
-    double currentEncoderLeftF = leftEncoderF.getPosition();
-    double currentEncoderLeftB = leftEncoderB.getPosition();
-    double currentEncoderRightF = rightEncoderF.getPosition();
-    double currentEncoderRightB = rightEncoderB.getPosition();
+    double leftEncoderFValue = leftEncoderF.getPosition();
+    double leftEncoderBValue = leftEncoderB.getPosition();
+    double rightEncoderFValue = rightEncoderF.getPosition();
+    double rightEncoderBValue = rightEncoderB.getPosition();
     boolean drivePositionreached = true;
-    if (Math.abs(drive_leftEncoderFFinalPosition - currentEncoderLeftF) > drive_encoderError){
+    if (Math.abs(drive_leftEncoderFFinalPosition - leftEncoderFValue) > drive_encoderError){
       drivePositionreached = false;
     }
-    if (Math.abs(drive_leftEncoderBFinalPosition - currentEncoderLeftB) > drive_encoderError){
+    if (Math.abs(drive_leftEncoderBFinalPosition - leftEncoderBValue) > drive_encoderError){
       drivePositionreached = false;
     }
-    if (Math.abs(drive_rightEncoderFFinalPosition - currentEncoderRightF) > drive_encoderError){
+    if (Math.abs(drive_rightEncoderFFinalPosition - rightEncoderFValue) > drive_encoderError){
       drivePositionreached = false;
     }
-    if (Math.abs(drive_rightEncoderBFinalPosition - currentEncoderRightB) > drive_encoderError){
+    if (Math.abs(drive_rightEncoderBFinalPosition - rightEncoderBValue) > drive_encoderError){
       drivePositionreached = false;
+    }
+    if(drivePositionreached=true){
+      isArcRunning=false;
     }
     return drivePositionreached;
   }
@@ -659,38 +664,6 @@ public class Robot extends TimedRobot {
   public boolean collectorBackStop(){
     return shootStick.getRawButtonReleased(5);
   }
-
-  public void stateMachine(){
- 
-    if(state == 0){
-      state++;
-    }
-    if(state == 1){
-      state++;
-    }
-    if(state == 2){
-      state++;
-    }
-    if(state == 3){
-      state++;
-    }
-    if(state == 4){
-      state++;
-    }
-    if(state == 5){
-      state++;
-    }
-    if(state == 6){
-      state++;
-    }
-    if(state == 7){
-      state++;
-    }
-    if(state == 8){
-      state++;
-    }
-  }
-
   public void setDrivePids(int slot, double kP ,double kI , double kD,  double kIz,  double kFF, double encoderError,  double kMaxOutput,  double kMinOutput){
      leftMotorFPID.setP(kP,slot);
     leftMotorFPID.setI(kI,slot);
@@ -725,6 +698,43 @@ public class Robot extends TimedRobot {
     rightMotorBPID.setOutputRange(kMinOutput, kMaxOutput,slot);
   }
 
+  public void setLeftPids(int slot, double kP ,double kI , double kD,  double kIz,  double kFF, double encoderError,  double kMaxOutput,  double kMinOutput){
+    leftMotorFPID.setP(kP,slot);
+   leftMotorFPID.setI(kI,slot);
+   leftMotorFPID.setD(kD,slot);
+   leftMotorFPID.setIZone(kIz,slot);
+   leftMotorFPID.setFF(kFF,slot);
+   leftMotorFPID.setSmartMotionAllowedClosedLoopError(encoderError,slot);
+   leftMotorFPID.setOutputRange(kMinOutput, kMaxOutput,slot);
+   
+   leftMotorBPID.setP(kP,slot);
+   leftMotorBPID.setI(kI,slot);
+   leftMotorBPID.setD(kD,slot);
+   leftMotorBPID.setIZone(kIz,slot);
+   leftMotorBPID.setFF(kFF,slot);
+   leftMotorBPID.setSmartMotionAllowedClosedLoopError(encoderError,slot);
+   leftMotorBPID.setOutputRange(kMinOutput, kMaxOutput,slot);
+ }
+
+ public void setRightPids(int slot, double kP ,double kI , double kD,  double kIz,  double kFF, double encoderError,  double kMaxOutput,  double kMinOutput){
+
+ rightMotorFPID.setP(kP,slot);
+ rightMotorFPID.setI(kI,slot);
+ rightMotorFPID.setD(kD,slot);
+ rightMotorFPID.setIZone(kIz,slot);
+ rightMotorFPID.setFF(kFF,slot);
+ rightMotorFPID.setSmartMotionAllowedClosedLoopError(drive_encoderError,slot);
+ rightMotorFPID.setOutputRange(kMinOutput, kMaxOutput,slot);
+
+ rightMotorBPID.setP(kP,slot);
+ rightMotorBPID.setI(kI,slot);
+ rightMotorBPID.setD(kD,slot);
+ rightMotorBPID.setIZone(kIz,slot);
+ rightMotorBPID.setFF(kFF,slot);
+ rightMotorBPID.setSmartMotionAllowedClosedLoopError(drive_encoderError,slot);
+ rightMotorBPID.setOutputRange(kMinOutput, kMaxOutput,slot);
+}
+
   @Override
   public void testInit(){
     //PID CONTROLLERS 
@@ -735,72 +745,6 @@ public class Robot extends TimedRobot {
   public void testPeriodic(){
     
   }
-
-  public void autonInit(){
-    //PID CONTROLLERS 
-    resetDriveEncoders();
-    
-    leftMotorFPID = leftMotorF.getPIDController();
-    leftMotorBPID = leftMotorB.getPIDController(); 
-    rightMotorFPID = rightMotorF.getPIDController();
-    rightMotorBPID = rightMotorB.getPIDController();
-
-    leftMotorF.restoreFactoryDefaults();
-    leftMotorB.restoreFactoryDefaults();
-    rightMotorF.restoreFactoryDefaults();
-    rightMotorB.restoreFactoryDefaults();
-
-    drive_kP = 0.4; //0.1; 
-    drive_kI = 0; //1e-4;
-    drive_kD = 0; //1; 
-    drive_kIz = 0; 
-    drive_kFF = 0; 
-    drive_kMaxOutput = .15; 
-    drive_kMinOutput = -.15;
-    drive_encoderError = .4;
-    setDrivePids(0,drive_kP, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, drive_kMaxOutput, drive_kMinOutput);
-    state = 0;
-    drive_state = 0;
-    resetDriveEncoders();
-  }
-
-  public void autonPeriodic(){
-    double currentEncoderLeftF = leftEncoderF.getPosition();
-    double currentEncoderLeftB = leftEncoderB.getPosition();
-    double currentEncoderRightF = rightEncoderF.getPosition();
-    double currentEncoderRightB = rightEncoderB.getPosition();
-    SmartDashboard.putNumber("Drive Left Front Position", currentEncoderLeftF);
-    SmartDashboard.putNumber("Drive Left Back Position", currentEncoderLeftB);
-    SmartDashboard.putNumber("Drive Right Front Position", currentEncoderRightF);
-    SmartDashboard.putNumber("Drive Right Back Position", currentEncoderRightB);
-    SmartDashboard.putNumber("State", state);
-    SmartDashboard.putNumber("Drive State", drive_state);
-    SmartDashboard.putNumber("Drive Left Front Target", drive_leftEncoderFFinalPosition);
-    SmartDashboard.putNumber("Drive Left Back Target", drive_leftEncoderBFinalPosition);
-    SmartDashboard.putNumber("Drive Right Front Target", drive_rightEncoderFFinalPosition);
-    SmartDashboard.putNumber("Drive Right Back Target", drive_rightEncoderBFinalPosition);
-    if(state == 0){
-      driveDistance(36, 0);
-      state++;
-    }
-    if(state == 1){
-      if(driveComplete() == true){
-      state++;
-      }
-    }
-    if(state == 2){
-      turnDegrees(-180, 0);
-      state++;
-    }
-    if(state == 3){
-      if(driveComplete() == true){
-        state = 0;
-      }
-    }
-    
-  }
-
-
 
 
   double drivePidTestInches = 12;
@@ -829,39 +773,34 @@ public class Robot extends TimedRobot {
     drive_kMaxOutput = .15; 
     drive_kMinOutput = -.15;
     drive_encoderError = .4;
+    wheelWidth = 22;
     setDrivePids(0,drive_kP, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, drive_kMaxOutput, drive_kMinOutput);
     state = 0;
     drive_state = 0;
     resetDriveEncoders();
+    isArcRunning = false;
   }
   double time;
   public void drivePidTestPeriodic(){
-    double currentEncoderLeftF = leftEncoderF.getPosition();
-    double currentEncoderLeftB = leftEncoderB.getPosition();
-    double currentEncoderRightF = rightEncoderF.getPosition();
-    double currentEncoderRightB = rightEncoderB.getPosition();
-    SmartDashboard.putNumber("Drive Left Front Position", currentEncoderLeftF);
-    SmartDashboard.putNumber("Drive Left Back Position", currentEncoderLeftB);
-    SmartDashboard.putNumber("Drive Right Front Position", currentEncoderRightF);
-    SmartDashboard.putNumber("Drive Right Back Position", currentEncoderRightB);
     if(state == 0){
-      driveDistance(36, 0);
+      driveDistance(60, 0);
       state++;
     }
     if(state == 1){
       if(driveComplete() == true){
         state++;
-      }
-    }
+     }
+  }
     if(state == 2){
-      turnDegrees(-180, 0);
-      state++;
+      //turnDegrees(-180, 0);
+      
     }
     if(state == 3){
-      if(driveComplete() == true){
-        state = 0;
+      
+     // if(driveComplete() == true){
+        state++;
       }
-    }
+  
 
     double p = SmartDashboard.getNumber("P Gain", drive_kP);
     double i = SmartDashboard.getNumber("I Gain", drive_kI);
@@ -873,8 +812,9 @@ public class Robot extends TimedRobot {
     double encoderError = SmartDashboard.getNumber("Encoder Error", drive_encoderError);
     double inches = SmartDashboard.getNumber("Inches", drivePidTestInches);
     double newState = SmartDashboard.getNumber("New State", 1);
-
+    
     // if PID coefficients on SmartDashboard have changed, write new values to controller
+   if(isArcRunning == false){
     boolean updatePids = false;
     if((p != drive_kP)) { 
       updatePids = true;
@@ -908,7 +848,7 @@ public class Robot extends TimedRobot {
     if(updatePids == true){
       setDrivePids(0,drive_kP, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, drive_kMaxOutput, drive_kMinOutput);
     }
-
+  }
     if(drivePidTestInches != inches){
       drivePidTestInches = inches;
     }
@@ -922,6 +862,10 @@ public class Robot extends TimedRobot {
 
     SmartDashboard.putNumber("State", state);
     SmartDashboard.putNumber("Drive State", drive_state);
+    SmartDashboard.putNumber("Drive Left Front Position", leftEncoderF.getPosition());
+    SmartDashboard.putNumber("Drive Left Back Position", leftEncoderB.getPosition());
+    SmartDashboard.putNumber("Drive Right Front Position", rightEncoderF.getPosition());
+    SmartDashboard.putNumber("Drive Right Back Position", rightEncoderB.getPosition());
     SmartDashboard.putNumber("Drive Left Front Target", drive_leftEncoderFFinalPosition);
     SmartDashboard.putNumber("Drive Left Back Target", drive_leftEncoderBFinalPosition);
     SmartDashboard.putNumber("Drive Right Front Target", drive_rightEncoderFFinalPosition);
@@ -935,6 +879,61 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Max Output", drive_kMaxOutput);
     SmartDashboard.putNumber("Min Output", drive_kMinOutput);
     SmartDashboard.putNumber("Encoder Error", drive_encoderError); 
-  
+    SmartDashboard.putBoolean("is arc running", isArcRunning);
   }
+
+  Timer m_timeoutTimer;
+  Double m_timeoutExpires;
+  private void timeout_start(double second){
+    m_timeoutTimer = new Timer();
+    m_timeoutTimer.start();
+    m_timeoutExpires = m_timeoutTimer.get();
+  }
+
+  private boolean timeout_complete(){
+    if (m_timeoutExpires < m_timeoutTimer.get()){
+      return true;
+    }else{
+      return false;
+    }
+  }
+  //remeber dont forget not to not add 22 to the outer wheel
+ public void arcMove(double lRadius, double rRadius, double maxSpeed, double cPercent, int slot){
+  double leftMin;
+  double rightMin;
+  double leftMax;
+  double rightMax;
+   double lCircumference = 2 * Math.PI * lRadius;
+   double rCircumference = 2 * Math.PI * rRadius;
+   double lArc = cPercent * lCircumference;
+   double rArc = cPercent * rCircumference;
+   double speedRatio;
+   isArcRunning = true;
+   
+   if(lCircumference > rCircumference){
+    speedRatio = rCircumference/lCircumference;
+    leftMax = maxSpeed;
+    rightMax = maxSpeed * speedRatio; 
+   } else{
+      speedRatio = lCircumference/rCircumference;
+      rightMax = maxSpeed;
+    leftMax = maxSpeed * speedRatio; 
+   }
+   leftMin = leftMax * -1;
+   rightMin = rightMax * -1;
+   setLeftPids(0,drive_kP, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, leftMax, leftMin);
+   setRightPids(0,drive_kP, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, rightMax, rightMin);
+   double leftEncoderFValue = leftEncoderF.getPosition();
+   double leftEncoderBValue = leftEncoderB.getPosition();
+   double rightEncoderFValue = rightEncoderF.getPosition();
+   double rightEncoderBValue = rightEncoderB.getPosition();
+   drive_leftEncoderFFinalPosition = leftEncoderFValue + (drive_ticksPerInch * lArc);
+   drive_leftEncoderBFinalPosition = leftEncoderBValue + (drive_ticksPerInch * lArc);
+   drive_rightEncoderFFinalPosition = rightEncoderFValue - (drive_ticksPerInch * rArc);
+   drive_rightEncoderBFinalPosition = rightEncoderBValue - (drive_ticksPerInch * rArc);
+   leftMotorFPID.setReference(drive_leftEncoderFFinalPosition, ControlType.kPosition, slot);
+   leftMotorBPID.setReference(drive_leftEncoderBFinalPosition, ControlType.kPosition, slot);
+   rightMotorFPID.setReference(drive_rightEncoderFFinalPosition, ControlType.kPosition, slot);
+   rightMotorBPID.setReference(drive_rightEncoderBFinalPosition, ControlType.kPosition, slot);
+ }
 }
