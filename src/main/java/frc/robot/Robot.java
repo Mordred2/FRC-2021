@@ -101,7 +101,7 @@ public class Robot extends TimedRobot {
   double drive_rightEncoderFFinalPosition = 0; 
   double drive_rightEncoderBFinalPosition = 0; 
   double drive_ticksPerDegree = 0.11;
-  double drive_ticksPerInch = 1;
+  double drive_ticksPerInch = .57;
   double drive_encoderError = .4;
 
   public double collector_kP ; 
@@ -764,7 +764,6 @@ public class Robot extends TimedRobot {
     rightMotorF.restoreFactoryDefaults();
     rightMotorB.restoreFactoryDefaults();
 
-
     drive_kP = 0.4; //0.1; 
     drive_kI = 0; //1e-4;
     drive_kD = 0; //1; 
@@ -783,7 +782,7 @@ public class Robot extends TimedRobot {
   double time;
   public void drivePidTestPeriodic(){
     if(state == 0){
-      driveDistance(60, 0);
+      arcMove(6, 28, .25, 1, 0);
       state++;
     }
     if(state == 1){
@@ -796,12 +795,18 @@ public class Robot extends TimedRobot {
       
     }
     if(state == 3){
-      
-     // if(driveComplete() == true){
+      arcMove(2, 24, .25, -1, 0);
+     
         state++;
       }
+      if(state == 4){
+      
+        if(driveComplete() == true){
+          state++;
+       }
+      }
   
-
+    state = SmartDashboard.getNumber("State Tester", state);
     double p = SmartDashboard.getNumber("P Gain", drive_kP);
     double i = SmartDashboard.getNumber("I Gain", drive_kI);
     double d = SmartDashboard.getNumber("D Gain", drive_kD);
@@ -937,3 +942,64 @@ public class Robot extends TimedRobot {
    rightMotorBPID.setReference(drive_rightEncoderBFinalPosition, ControlType.kPosition, slot);
  }
 }
+/*these are comments
+
+Slalom Course
+______________________
+Start at theredical E-2
+Arc to left of inner radius 19 to D-3
+Arc right radius of 19 inches
+Drive 120 inches forward
+Arc right inner radius 19
+Arc Left complete circle inner radius of 19
+Arc Right inner radius of 19 inches
+Drive 120 inches forward
+Arc right inner radius 19 inches
+Arc left inner radius 19 inches
+Drive 60 inches forward
+Course Complete
+______________________
+
+
+
+
+Barrel Racing Course
+______________________
+Start front center C-2
+Drive forward 90 inches
+Full arc to the right inner radius 19
+Drive 90 forward
+Full arc left inner radius 19
+Drive forward 60 
+Arc right inner radius 19 .5 completion
+Turn Degrees 22 right
+Drive 162 inches forward
+Turn 22 Degrees left
+Drive 150 inches forward
+Course Complete
+______________________
+
+
+
+Bounce Path Course
+______________________
+Start at C-2
+Arc left inner radius 19 .25 completion
+Drive forward 30 inches
+Drive backwards 30 inches
+Turn left 22.5 degrees
+Drive backwards 134
+Turn right 115 degrees
+Arc left inside radius 19 .25  completion
+Drive forward 90 inches
+Drive backwards 90 inches
+Arc backwards right inner radius 19 .25 completion
+Drive 30 inches backwards
+Arc backwards right inner circle 19 .25 completion
+Drive backwards 90 inches
+Drive forward 30 inches
+Arc left inner radius 19 .25 completion
+Drive forward 60 inches
+Course Comeplete
+______________________
+no more comments*/
