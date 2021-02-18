@@ -269,7 +269,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
-    drivePidTestPeriodic();
+    //drivePidTestPeriodic();
+    slalomRun();
   }
 
   @Override
@@ -624,8 +625,11 @@ public class Robot extends TimedRobot {
     if (Math.abs(drive_rightEncoderBFinalPosition - rightEncoderBValue) > drive_encoderError){
       drivePositionreached = false;
     }
-    if(drivePositionreached=true){
+    /*if(drivePositionreached=true){
       isArcRunning=false;
+    }*/
+    if(drivePositionreached){
+      setDrivePids(0,drive_kP, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, drive_kMaxOutput, drive_kMinOutput);
     }
     return drivePositionreached;
   }
@@ -749,63 +753,7 @@ public class Robot extends TimedRobot {
 
   double drivePidTestInches = 12;
 
-  public void drivePidTestInit(){
-    //PID CONTROLLERS 
-    resetDriveEncoders();
-    
-    leftMotorFPID = leftMotorF.getPIDController();
-    leftMotorBPID = leftMotorB.getPIDController(); 
-    rightMotorFPID = rightMotorF.getPIDController();
-    rightMotorBPID = rightMotorB.getPIDController();
-
-
-    leftMotorF.restoreFactoryDefaults();
-    leftMotorB.restoreFactoryDefaults();
-    rightMotorF.restoreFactoryDefaults();
-    rightMotorB.restoreFactoryDefaults();
-
-    drive_kP = 0.4; //0.1; 
-    drive_kI = 0; //1e-4;
-    drive_kD = 0; //1; 
-    drive_kIz = 0; 
-    drive_kFF = 0; 
-    drive_kMaxOutput = .15; 
-    drive_kMinOutput = -.15;
-    drive_encoderError = .4;
-    wheelWidth = 22;
-    setDrivePids(0,drive_kP, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, drive_kMaxOutput, drive_kMinOutput);
-    state = 0;
-    drive_state = 0;
-    resetDriveEncoders();
-    isArcRunning = false;
-  }
-  double time;
-  public void drivePidTestPeriodic(){
-    if(state == 0){
-      arcMove(6, 28, .25, 1, 0);
-      state++;
-    }
-    if(state == 1){
-      if(driveComplete() == true){
-        state++;
-     }
-  }
-    if(state == 2){
-      //turnDegrees(-180, 0);
-      
-    }
-    if(state == 3){
-      arcMove(2, 24, .25, -1, 0);
-     
-        state++;
-      }
-      if(state == 4){
-      
-        if(driveComplete() == true){
-          state++;
-       }
-      }
-  
+  public void allAuton(){
     state = SmartDashboard.getNumber("State Tester", state);
     double p = SmartDashboard.getNumber("P Gain", drive_kP);
     double i = SmartDashboard.getNumber("I Gain", drive_kI);
@@ -887,6 +835,60 @@ public class Robot extends TimedRobot {
     SmartDashboard.putBoolean("is arc running", isArcRunning);
   }
 
+  public void drivePidTestInit(){
+    //PID CONTROLLERS 
+    resetDriveEncoders();
+    
+    leftMotorFPID = leftMotorF.getPIDController();
+    leftMotorBPID = leftMotorB.getPIDController(); 
+    rightMotorFPID = rightMotorF.getPIDController();
+    rightMotorBPID = rightMotorB.getPIDController();
+
+
+    leftMotorF.restoreFactoryDefaults();
+    leftMotorB.restoreFactoryDefaults();
+    rightMotorF.restoreFactoryDefaults();
+    rightMotorB.restoreFactoryDefaults();
+
+    drive_kP = 0.4; //0.1; 
+    drive_kI = 0; //1e-4;
+    drive_kD = 0; //1; 
+    drive_kIz = 0; 
+    drive_kFF = 0; 
+    drive_kMaxOutput = .3; 
+    drive_kMinOutput = -.3;
+    drive_encoderError = .4;
+    wheelWidth = 22;
+    setDrivePids(0,drive_kP, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, drive_kMaxOutput, drive_kMinOutput);
+    state = 0;
+    drive_state = 0;
+    resetDriveEncoders();
+    isArcRunning = false;
+  }
+  double time;
+  public void drivePidTestPeriodic(){
+    if(state == 0){
+      driveDistance(15, 0);
+      state++;
+    }
+    if(state == 1){
+      if(driveComplete()){
+        state++;
+      }
+    }
+    if(state == 2){
+      arcMove(19, 41, .25, .25, 0);
+      state++;
+    }
+    if(state == 3){
+      if(driveComplete()){
+        state++;
+      }
+    }
+  
+   allAuton();
+  }
+
   Timer m_timeoutTimer;
   Double m_timeoutExpires;
   private void timeout_start(double second){
@@ -908,6 +910,8 @@ public class Robot extends TimedRobot {
   double rightMin;
   double leftMax;
   double rightMax;
+  double leftkp;
+  double rightkp;
    double lCircumference = 2 * Math.PI * lRadius;
    double rCircumference = 2 * Math.PI * rRadius;
    double lArc = cPercent * lCircumference;
@@ -916,12 +920,13 @@ public class Robot extends TimedRobot {
    isArcRunning = true;
    
    if(lCircumference > rCircumference){
-    speedRatio = rCircumference/lCircumference;
+    speedRatio = .85 * (rCircumference/lCircumference);
     leftMax = maxSpeed;
-    rightMax = maxSpeed * speedRatio; 
+    rightMax = maxSpeed * speedRatio;
+    rightkp = drive_kP; 
    } else{
-      speedRatio = lCircumference/rCircumference;
-      rightMax = maxSpeed;
+    speedRatio = .85 * (lCircumference/rCircumference);
+    rightMax = maxSpeed;
     leftMax = maxSpeed * speedRatio; 
    }
    leftMin = leftMax * -1;
@@ -941,22 +946,126 @@ public class Robot extends TimedRobot {
    rightMotorFPID.setReference(drive_rightEncoderFFinalPosition, ControlType.kPosition, slot);
    rightMotorBPID.setReference(drive_rightEncoderBFinalPosition, ControlType.kPosition, slot);
  }
+
+  public void slalomRun(){
+    double arcSpeed = .25;
+    //Start With Robot Set at E2
+    if(state == 0){
+      driveDistance(15, 0);
+      state++;
+    }
+    if(state == 1){
+      if(driveComplete() == true){
+        isArcRunning = false;
+        state++;
+     }
+    }
+    if(state == 2){
+      arcMove(19, 41, arcSpeed, .25, 0);
+      state++;
+    }
+    if(state == 3){
+      if(driveComplete() == true){
+        isArcRunning = false;
+        state++;
+     }
+    }
+    if(state == 4){
+      arcMove(41, 19, arcSpeed, .25, 0);
+      state++;
+    }
+    if(state == 5){
+      if(driveComplete() == true){
+        isArcRunning = false;
+        state++;
+     }
+    }
+    if(state == 6){
+      driveDistance(120, 0);
+      state++;
+    }
+    if(state == 7){
+      if(driveComplete() == true){
+        state++;
+     }
+    }
+    if(state == 8){
+      arcMove(41, 19, arcSpeed, .25, 0);
+      state++;
+    }
+    if(state == 9){
+      if(driveComplete() == true){
+        isArcRunning = false;
+        state++;
+     }
+    }
+    if(state == 10){
+      arcMove(19, 41, arcSpeed, 1, 0);
+      state++;
+    }
+    if(state == 11){
+      if(driveComplete() == true){
+        state++;
+        isArcRunning = false;
+     }
+    }
+    if(state == 12){
+      arcMove(41, 19, arcSpeed, .25, 0);
+      state++;
+    }
+    if(state == 13){
+      if(driveComplete() == true){
+        state++;
+        isArcRunning = false;
+     }
+    }
+    if(state == 14){
+      driveDistance(120, 0);
+      state++;
+    }
+    if(state == 15){
+      if(driveComplete() == true){
+        state++;
+     }
+    }
+    if(state == 16){
+    arcMove(41, 19, arcSpeed, .25, 0);
+      state++;
+    }
+    if(state == 17){
+      if(driveComplete() == true){
+        isArcRunning = false;
+        state++;
+     }
+    }
+    if(state == 18){
+      arcMove(19, 41, arcSpeed, .25, 0);
+        state++;
+      }
+      if(state == 19){
+        if(driveComplete() == true){
+          isArcRunning = false;
+          state++;
+       }
+      }
+      allAuton();
+  }
 }
 /*these are comments
 
 Slalom Course
 ______________________
 Start at theredical E-2
-Arc to left of inner radius 19 to D-3
-Arc right radius of 19 inches
-Drive 120 inches forward
-Arc right inner radius 19
-Arc Left complete circle inner radius of 19
-Arc Right inner radius of 19 inches
-Drive 120 inches forward
-Arc right inner radius 19 inches
-Arc left inner radius 19 inches
-Drive 60 inches forward
+0. Arc to left of inner radius 19 to D-3
+2. Arc right radius of 19 inches
+4. Drive 120 inches forward
+6. Arc right inner radius 19
+8. Arc Left complete circle inner radius of 19
+10. Arc Right inner radius of 19 inches
+12. Drive 120 inches forward
+14. Arc right inner radius 19 inches
+16. Arc left inner radius 19 inches
+18.Drive 60 inches forward
 Course Complete
 ______________________
 
