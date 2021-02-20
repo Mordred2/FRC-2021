@@ -103,6 +103,7 @@ public class Robot extends TimedRobot {
   double drive_ticksPerDegree = 0.11;
   double drive_ticksPerInch = .57;
   double drive_encoderError = .4;
+  double changeFront;
 
   public double collector_kP ; 
   public double collector_kI ;
@@ -269,13 +270,14 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
-    //drivePidTestPeriodic();
-    slalomRun();
+    drivePidTestPeriodic();
+    //slalomRun();
   }
 
   @Override
   public void teleopInit(){
     // DRIVETRAIN
+    changeFront = 1;
      SpeedControllerGroup leftMotors;
      SpeedControllerGroup rightMotors;
      leftMotors = new SpeedControllerGroup(leftMotorF, leftMotorB);
@@ -365,6 +367,13 @@ public class Robot extends TimedRobot {
   }
 
   flopIt();
+  if(shootStick.getRawButtonPressed(3)){
+  if(changeFront == 1){
+    changeFront = -1;
+  }
+  else changeFront=1;
+
+  }
   if (aimingEngaged()) {
     aim(x, aimerEncoderValue, distance);
   } 
@@ -432,7 +441,7 @@ public class Robot extends TimedRobot {
   }
 
   public void drive(double speed, double turn, boolean quickTurn) {
-    m_robotDrive.curvatureDrive(speed, turn, quickTurn);
+    m_robotDrive.curvatureDrive(speed * changeFront, turn, quickTurn);
   }
 
   /*public void rangeSensor(){
@@ -855,8 +864,8 @@ public class Robot extends TimedRobot {
     rightMotorB.restoreFactoryDefaults();
 
     drive_kP = 0.4; //0.1; 
-    drive_kI = 0; //1e-4;
-    drive_kD = 1; //1; 
+    drive_kI = -1; //1e-4;
+    drive_kD = 1  ; //1; 
     drive_kIz = 0; 
     drive_kFF = 0; 
     drive_kMaxOutput = .3; 
@@ -873,7 +882,7 @@ public class Robot extends TimedRobot {
   public void drivePidTestPeriodic(){
     double baseSpeed = .2;
     if(state == 0){
-      driveDistance(15, baseSpeed, 0);
+      driveDistance(120, .25, 0);
       state++;
     }
     if(state == 1){
@@ -881,7 +890,7 @@ public class Robot extends TimedRobot {
         state++;
       }
     }
-    if(state == 2){
+    if(state == 7){
       arcMove(19, 41, .25, .25, 0);
       state++;
     }
@@ -960,7 +969,7 @@ public class Robot extends TimedRobot {
     double arcSpeed = .25;
     //Start With Robot Set at E2
     if(state == 0){
-      driveDistance(15, baseSpeed, 0);
+      driveDistance(18, baseSpeed, 0);
       state++;
     }
     if(state == 1){
@@ -1064,7 +1073,7 @@ public class Robot extends TimedRobot {
   double arcSpeed = .25;
   double baseSpeed = .2;
   if(state == 0){
-    driveDistance(105, baseSpeed, 0);
+    driveDistance(108, baseSpeed, 0);
     state++;
   }
   if(state == 1){
@@ -1163,7 +1172,7 @@ public class Robot extends TimedRobot {
     double baseSpeed = .2;
     //Start With Robot Set at E2
     if(state == 0){
-      driveDistance(15, baseSpeed, 0);
+      driveDistance(18, baseSpeed, 0);
       state++;
     }
     if(state == 1){
