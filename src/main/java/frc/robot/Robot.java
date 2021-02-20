@@ -920,19 +920,22 @@ public class Robot extends TimedRobot {
    isArcRunning = true;
    
    if(lCircumference > rCircumference){
-    speedRatio = .85 * (rCircumference/lCircumference);
+    speedRatio = (rCircumference/lCircumference);
     leftMax = maxSpeed;
     rightMax = maxSpeed * speedRatio;
-    rightkp = drive_kP; 
+    rightkp = drive_kP * speedRatio; 
+    leftkp = drive_kP;
    } else{
     speedRatio = .85 * (lCircumference/rCircumference);
     rightMax = maxSpeed;
     leftMax = maxSpeed * speedRatio; 
+    leftkp = maxSpeed * speedRatio;
+    rightkp = drive_kP;
    }
    leftMin = leftMax * -1;
    rightMin = rightMax * -1;
-   setLeftPids(0,drive_kP, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, leftMax, leftMin);
-   setRightPids(0,drive_kP, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, rightMax, rightMin);
+   setLeftPids(1,leftkp, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, leftMax, leftMin);
+   setRightPids(2,rightkp, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, rightMax, rightMin);
    double leftEncoderFValue = leftEncoderF.getPosition();
    double leftEncoderBValue = leftEncoderB.getPosition();
    double rightEncoderFValue = rightEncoderF.getPosition();
@@ -1301,15 +1304,6 @@ public class Robot extends TimedRobot {
               state++;
            }
           }
-          if(state == 32){
-            driveDistance(60, 0);
-            state++;
-          }
-          if(state == 33){
-            if(driveComplete() == true){
-              state++;
-            }
-          }
       allAuton();
   }
 }
@@ -1370,7 +1364,6 @@ Arc backwards right inner circle 19 .25 completion
 Drive backwards 90 inches
 Drive forward 30 inches
 Arc left inner radius 19 .25 completion
-Drive forward 60 inches
 Course Comeplete
 ______________________
 no more comments*/
