@@ -1050,6 +1050,104 @@ public class Robot extends TimedRobot {
       }
       allAuton();
   }
+
+  public void barrelRun(){
+  double arcSpeed = .25;
+  if(state == 0){
+    driveDistance(105, 0);
+    state++;
+  }
+  if(state == 1){
+    if(driveComplete()){
+      state++;
+    }
+  }
+  if(state == 2){
+    arcMove(41, 19, arcSpeed, 1, 0);
+    state++;
+  }
+  if(state == 3){
+    if(driveComplete()){
+      isArcRunning = false;
+      state++;
+    }
+  }
+  if(state == 4){
+    driveDistance(90, 0);
+    state++;
+  }
+  if(state == 5){
+    if(driveComplete()){
+      state++;
+    }
+  }
+  if(state == 6){
+    arcMove(19, 41, arcSpeed, 1, 0);
+    state++;
+  }
+  if(state == 7){
+    if(driveComplete()){
+      isArcRunning = false;
+      state++;
+    }
+  }
+  if(state == 8){
+    driveDistance(60, 0);
+    state++;
+  }
+  if(state == 9){
+    if(driveComplete()){
+      state++;
+    }
+  }
+  if(state == 10){
+    arcMove(41, 19, arcSpeed, .5, 0);
+    state++;
+  }
+  if(state == 11){
+    if(driveComplete()){
+      isArcRunning = false;
+      state++;
+    }
+  }
+  if(state == 12){
+    turnDegrees(22, 0);
+    state++;
+  }
+  if(state == 13){
+    if(driveComplete()){
+      state++;
+    }
+  }
+  if(state == 14){
+    driveDistance(162, 0);
+    state++;
+  }
+  if(state == 15){
+    if(driveComplete()){
+      state++;
+    }
+  }
+  if(state == 16){
+    turnDegrees(-22, 0);
+    state++;
+  }
+  if(state == 17){
+    if(driveComplete()){
+      state++;
+    }
+  }
+  if(state == 18){
+    driveDistance(150, 0);
+    state++;
+  }
+  if(state == 19){
+    if(driveComplete()){
+      state++;
+    }
+  }
+  allAuton();
+  }
 }
 /*these are comments
 
