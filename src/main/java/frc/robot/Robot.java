@@ -316,7 +316,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Left Back Encoder", leftEncoderB.getPosition());
     SmartDashboard.putNumber("Right Front Encoder", rightEncoderF.getPosition());
     SmartDashboard.putNumber("Right Back Encoder", rightEncoderB.getPosition());
-    
+    SmartDashboard.putNumber("choose front", changeFront);
 
 
 
@@ -367,17 +367,16 @@ public class Robot extends TimedRobot {
   }
 
   flopIt();
-  if(shootStick.getRawButtonPressed(3)){
-  if(changeFront == 1){
+  if(driveStick.getRawButtonPressed(3)){
     changeFront = -1;
-  }
-  else changeFront=1;
-
+  
+  }else{
+    changeFront = 1;
   }
   if (aimingEngaged()) {
     aim(x, aimerEncoderValue, distance);
   } 
-  else drive(-driveStick.getY(), driveStick.getX(), driveStick.getRawButton(2));
+  else drive(-driveStick.getY()*changeFront, driveStick.getX()*changeFront, driveStick.getRawButton(2));
 }
   //FUNCTIONS
 
@@ -441,7 +440,7 @@ public class Robot extends TimedRobot {
   }
 
   public void drive(double speed, double turn, boolean quickTurn) {
-    m_robotDrive.curvatureDrive(speed * changeFront, turn, quickTurn);
+    m_robotDrive.curvatureDrive(speed, turn, quickTurn);
   }
 
   /*public void rangeSensor(){
