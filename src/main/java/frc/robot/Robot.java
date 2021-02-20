@@ -634,11 +634,15 @@ public class Robot extends TimedRobot {
     return drivePositionreached;
   }
 
-  public void driveDistance(double driveDistanceInch, int slot){
+  public void driveDistance(double driveDistanceInch, double speed, int slot){
+    double forwardSpeed = speed;
+    double backwardSpeed = -speed;
+
     double leftEncoderFValue = leftEncoderF.getPosition();
     double leftEncoderBValue = leftEncoderB.getPosition();
     double rightEncoderFValue = rightEncoderF.getPosition();
     double rightEncoderBValue = rightEncoderB.getPosition();
+    setDrivePids(0, drive_kP, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, forwardSpeed, backwardSpeed);
     drive_leftEncoderFFinalPosition = leftEncoderFValue + (drive_ticksPerInch * driveDistanceInch);
     drive_leftEncoderBFinalPosition = leftEncoderBValue + (drive_ticksPerInch * driveDistanceInch);
     drive_rightEncoderFFinalPosition = rightEncoderFValue - (drive_ticksPerInch * driveDistanceInch);
@@ -867,8 +871,9 @@ public class Robot extends TimedRobot {
   }
   double time;
   public void drivePidTestPeriodic(){
+    double baseSpeed = .2;
     if(state == 0){
-      driveDistance(15, 0);
+      driveDistance(15, baseSpeed, 0);
       state++;
     }
     if(state == 1){
@@ -948,10 +953,11 @@ public class Robot extends TimedRobot {
  }
 
   public void slalomRun(){
+    double baseSpeed = .2;
     double arcSpeed = .25;
     //Start With Robot Set at E2
     if(state == 0){
-      driveDistance(15, 0);
+      driveDistance(15, baseSpeed, 0);
       state++;
     }
     if(state == 1){
@@ -981,7 +987,7 @@ public class Robot extends TimedRobot {
      }
     }
     if(state == 6){
-      driveDistance(120, 0);
+      driveDistance(120, baseSpeed, 0);
       state++;
     }
     if(state == 7){
@@ -1020,7 +1026,7 @@ public class Robot extends TimedRobot {
      }
     }
     if(state == 14){
-      driveDistance(120, 0);
+      driveDistance(120, baseSpeed, 0);
       state++;
     }
     if(state == 15){
@@ -1053,8 +1059,9 @@ public class Robot extends TimedRobot {
 
   public void barrelRun(){
   double arcSpeed = .25;
+  double baseSpeed = .2;
   if(state == 0){
-    driveDistance(105, 0);
+    driveDistance(105, baseSpeed, 0);
     state++;
   }
   if(state == 1){
@@ -1073,7 +1080,7 @@ public class Robot extends TimedRobot {
     }
   }
   if(state == 4){
-    driveDistance(90, 0);
+    driveDistance(90, baseSpeed, 0);
     state++;
   }
   if(state == 5){
@@ -1092,7 +1099,7 @@ public class Robot extends TimedRobot {
     }
   }
   if(state == 8){
-    driveDistance(60, 0);
+    driveDistance(60, baseSpeed, 0);
     state++;
   }
   if(state == 9){
@@ -1120,7 +1127,7 @@ public class Robot extends TimedRobot {
     }
   }
   if(state == 14){
-    driveDistance(162, 0);
+    driveDistance(162, baseSpeed, 0);
     state++;
   }
   if(state == 15){
@@ -1138,7 +1145,7 @@ public class Robot extends TimedRobot {
     }
   }
   if(state == 18){
-    driveDistance(150, 0);
+    driveDistance(150, baseSpeed, 0);
     state++;
   }
   if(state == 19){
@@ -1150,9 +1157,10 @@ public class Robot extends TimedRobot {
 }
   public void BouncePath(){
     double arcSpeed = .25;
+    double baseSpeed = .2;
     //Start With Robot Set at E2
     if(state == 0){
-      driveDistance(15, 0);
+      driveDistance(15, baseSpeed, 0);
       state++;
     }
     if(state == 1){
@@ -1172,7 +1180,7 @@ public class Robot extends TimedRobot {
      }
     }
     if(state == 4){
-     driveDistance(30, 0);
+     driveDistance(30, baseSpeed, 0);
       state++;
     }
     if(state == 5){
@@ -1181,7 +1189,7 @@ public class Robot extends TimedRobot {
      }
     }
     if(state == 6){
-      driveDistance(-30, 0);
+      driveDistance(-30, baseSpeed, 0);
       state++;
     }
     if(state == 7){
@@ -1199,7 +1207,7 @@ public class Robot extends TimedRobot {
      }
     }
     if(state == 10){
-      driveDistance(-134, 0);
+      driveDistance(-134, baseSpeed, 0);
       state++;
     }
     if(state == 11){
@@ -1219,7 +1227,7 @@ public class Robot extends TimedRobot {
     if(state == 14){
       arcMove(19, 41, arcSpeed, .25, 0);
       state++;
-    }
+    }   
     if(state == 15){
       if(driveComplete() == true){
         state++;
@@ -1227,7 +1235,7 @@ public class Robot extends TimedRobot {
      }
     }
     if(state == 16){
-      driveDistance(90, 0);
+      driveDistance(90, baseSpeed, 0);
       state++;
     }
     if(state == 17){
@@ -1236,7 +1244,7 @@ public class Robot extends TimedRobot {
      }
     }
     if(state == 18){
-      driveDistance(-90, 0);
+      driveDistance(-90, baseSpeed, 0);
       state++;
     }
     if(state == 19){
@@ -1255,7 +1263,7 @@ public class Robot extends TimedRobot {
        }
       }
       if(state == 22){
-        driveDistance(-30, 0);
+        driveDistance(-30, baseSpeed, 0);
         state++;
       }
       if(state == 23){
@@ -1274,7 +1282,7 @@ public class Robot extends TimedRobot {
          }
         }
         if(state == 26){
-          driveDistance(-90, 0);
+          driveDistance(-90, baseSpeed, 0);
           state++;
         }
         if(state == 27){
@@ -1283,7 +1291,7 @@ public class Robot extends TimedRobot {
           }
         }
         if(state == 28){
-          driveDistance(30, 0);
+          driveDistance(30, baseSpeed, 0);
           state++;
         }
         if(state == 29){
@@ -1302,7 +1310,7 @@ public class Robot extends TimedRobot {
            }
           }
           if(state == 32){
-            driveDistance(60, 0);
+            driveDistance(60, baseSpeed, 0);
             state++;
           }
           if(state == 33){
