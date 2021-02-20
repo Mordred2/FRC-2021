@@ -1147,6 +1147,170 @@ public class Robot extends TimedRobot {
     }
   }
   allAuton();
+}
+  public void BouncePath(){
+    double arcSpeed = .25;
+    //Start With Robot Set at E2
+    if(state == 0){
+      driveDistance(15, 0);
+      state++;
+    }
+    if(state == 1){
+      if(driveComplete() == true){
+        isArcRunning = false;
+        state++;
+     }
+    }
+    if(state == 2){
+      arcMove(19, 41, arcSpeed, .25, 0);
+      state++;
+    }
+    if(state == 3){
+      if(driveComplete() == true){
+        isArcRunning = false;
+        state++;
+     }
+    }
+    if(state == 4){
+     driveDistance(30, 0);
+      state++;
+    }
+    if(state == 5){
+      if(driveComplete() == true){
+        state++;
+     }
+    }
+    if(state == 6){
+      driveDistance(-30, 0);
+      state++;
+    }
+    if(state == 7){
+      if(driveComplete() == true){
+        state++;
+     }
+    }
+    if(state == 8){
+     turnDegrees(-22.5, 0);
+      state++;
+    }
+    if(state == 9){
+      if(driveComplete() == true){
+        state++;
+     }
+    }
+    if(state == 10){
+      driveDistance(-134, 0);
+      state++;
+    }
+    if(state == 11){
+      if(driveComplete() == true){
+        state++;
+     }
+    }
+    if(state == 12){
+      turnDegrees(115, 0);
+      state++;
+    }
+    if(state == 13){
+      if(driveComplete() == true){
+        state++;
+     }
+    }
+    if(state == 14){
+      arcMove(19, 41, arcSpeed, .25, 0);
+      state++;
+    }
+    if(state == 15){
+      if(driveComplete() == true){
+        state++;
+        isArcRunning = false;
+     }
+    }
+    if(state == 16){
+      driveDistance(90, 0);
+      state++;
+    }
+    if(state == 17){
+      if(driveComplete() == true){
+        state++;
+     }
+    }
+    if(state == 18){
+      driveDistance(-90, 0);
+      state++;
+    }
+    if(state == 19){
+      if(driveComplete() == true){
+        state++;
+     }
+    }
+    if(state == 20){
+      arcMove(41, 19, arcSpeed, -.25, 0);
+        state++;
+      }
+      if(state == 21){
+        if(driveComplete() == true){
+          isArcRunning = false;
+          state++;
+       }
+      }
+      if(state == 22){
+        driveDistance(-30, 0);
+        state++;
+      }
+      if(state == 23){
+        if(driveComplete() == true){
+          state++;
+        }
+      }
+      if(state == 24){
+        arcMove(41, 19, arcSpeed, -.25, 0);
+          state++;
+        }
+        if(state == 25){
+          if(driveComplete() == true){
+            isArcRunning = false;
+            state++;
+         }
+        }
+        if(state == 26){
+          driveDistance(-90, 0);
+          state++;
+        }
+        if(state == 27){
+          if(driveComplete() == true){
+            state++;
+          }
+        }
+        if(state == 28){
+          driveDistance(30, 0);
+          state++;
+        }
+        if(state == 29){
+          if(driveComplete() == true){
+            state++;
+          }
+        }
+        if(state == 30){
+          arcMove(19, 41, arcSpeed, .25, 0);
+            state++;
+          }
+          if(state == 31){
+            if(driveComplete() == true){
+              isArcRunning = false;
+              state++;
+           }
+          }
+          if(state == 32){
+            driveDistance(60, 0);
+            state++;
+          }
+          if(state == 33){
+            if(driveComplete() == true){
+              state++;
+            }
+          }
+      allAuton();
   }
 }
 /*these are comments
