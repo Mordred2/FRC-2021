@@ -852,7 +852,7 @@ public class Robot extends TimedRobot {
 
     drive_kP = 0.4; //0.1; 
     drive_kI = 0; //1e-4;
-    drive_kD = 0; //1; 
+    drive_kD = 1; //1; 
     drive_kIz = 0; 
     drive_kFF = 0; 
     drive_kMaxOutput = .3; 
