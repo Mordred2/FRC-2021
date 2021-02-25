@@ -367,16 +367,17 @@ public class Robot extends TimedRobot {
   }
 
   flopIt();
-  if(driveStick.getRawButtonPressed(3)){
+  if(driveStick.getRawButton(2)){
     changeFront = -1;
   
-  }else{
+  }
+  else{
     changeFront = 1;
   }
   if (aimingEngaged()) {
     aim(x, aimerEncoderValue, distance);
   } 
-  else drive(-driveStick.getY()*changeFront, driveStick.getX()*changeFront, driveStick.getRawButton(2));
+  else drive((-.75)*driveStick.getY()*changeFront, .75*driveStick.getX(), driveStick.getRawButton(3));
 }
   //FUNCTIONS
 
@@ -536,7 +537,6 @@ public class Robot extends TimedRobot {
     fire();
     stopShooter();
     goingUp();
-    goingDown();
     stopIndexer();
     pleaseStop();
   }
@@ -565,9 +565,6 @@ public class Robot extends TimedRobot {
   }
   public boolean goingUp(){
    return driveStick.getRawButtonPressed(5);
-  }
-  public boolean goingDown(){
-    return driveStick.getRawButtonPressed(3);
   }
   public boolean stopIndexer() {
     return shootStick.getRawButtonPressed(10);
