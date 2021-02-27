@@ -858,15 +858,15 @@ public class Robot extends TimedRobot {
     leftMotorB.restoreFactoryDefaults();
     rightMotorF.restoreFactoryDefaults();
     rightMotorB.restoreFactoryDefaults();
-
-    drive_kP = 0.4; //0.1; 
-    drive_kI = -1; //1e-4;
-    drive_kD = 1  ; //1; 
+    //important! pid location
+    drive_kP = 0.035; //0.1; 
+    drive_kI = .0000015; //1e-4;
+    drive_kD = 2  ; //1; 
     drive_kIz = 0; 
     drive_kFF = 0; 
     drive_kMaxOutput = .3; 
     drive_kMinOutput = -.3;
-    drive_encoderError = .4;
+    drive_encoderError = 2;
     wheelWidth = 22;
     setDrivePids(0,drive_kP, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, drive_kMaxOutput, drive_kMinOutput);
     state = 0;
@@ -878,7 +878,7 @@ public class Robot extends TimedRobot {
   public void drivePidTestPeriodic(){
     double baseSpeed = .2;
     if(state == 0){
-      driveDistance(120, .25, 0);
+      arcMove(41, 19, .25, .25, 0);
       state++;
     }
     if(state == 1){
@@ -886,16 +886,6 @@ public class Robot extends TimedRobot {
         state++;
       }
     }
-    if(state == 7){
-      arcMove(19, 41, .25, .25, 0);
-      state++;
-    }
-    if(state == 3){
-      if(driveComplete()){
-        state++;
-      }
-    }
-  
    allAuton();
   }
 
@@ -916,6 +906,9 @@ public class Robot extends TimedRobot {
   }
   //remeber dont forget not to not add 22 to the outer wheel
  public void arcMove(double lRadius, double rRadius, double maxSpeed, double cPercent, int slot){
+  double arcP = .4; //0.1; 
+  double arcI = 0; //1e-4;
+  double arcD = 0; //1; 
   double leftMin;
   double rightMin;
   double leftMax;
@@ -932,20 +925,20 @@ public class Robot extends TimedRobot {
    if(lCircumference > rCircumference){
     speedRatio = (rCircumference/lCircumference);
     leftMax = maxSpeed;
-    rightMax = maxSpeed * speedRatio;
-    rightkp = drive_kP * speedRatio; 
-    leftkp = drive_kP;
+    rightMax = maxSpeed*speedRatio;
+    leftkp = arcP;
+    rightkp = arcP*speedRatio;
    } else{
-    speedRatio = .85 * (lCircumference/rCircumference);
+    speedRatio = (lCircumference/rCircumference);
     rightMax = maxSpeed;
-    leftMax = maxSpeed * speedRatio; 
-    leftkp = maxSpeed * speedRatio;
-    rightkp = drive_kP;
+    leftMax = maxSpeed*speedRatio;
+    rightkp = arcP;
+    leftkp = arcP*speedRatio;
    }
    leftMin = leftMax * -1;
    rightMin = rightMax * -1;
-   setLeftPids(1,leftkp, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, leftMax, leftMin);
-   setRightPids(2,rightkp, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, rightMax, rightMin);
+   setLeftPids(0,leftkp, arcI, arcD, drive_kIz, drive_kFF, drive_encoderError, leftMax, leftMin);
+   setRightPids(0, rightkp, arcI, arcD, drive_kIz, drive_kFF, drive_encoderError, rightMax, rightMin);
    double leftEncoderFValue = leftEncoderF.getPosition();
    double leftEncoderBValue = leftEncoderB.getPosition();
    double rightEncoderFValue = rightEncoderF.getPosition();
