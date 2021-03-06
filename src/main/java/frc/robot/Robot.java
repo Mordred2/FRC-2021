@@ -822,6 +822,9 @@ public class Robot extends TimedRobot {
       }
   
 
+<<<<<<< HEAD
+>>>>>>> parent of 9301a4b (Update Robot.java)
+=======
 >>>>>>> parent of 9301a4b (Update Robot.java)
     double p = SmartDashboard.getNumber("P Gain", drive_kP);
     double i = SmartDashboard.getNumber("I Gain", drive_kI);
@@ -1380,6 +1383,7 @@ public class Robot extends TimedRobot {
   }
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 /*these are comments
 
 Slalom Course
@@ -1442,3 +1446,4 @@ ______________________
 no more comments*/
 =======
 >>>>>>> parent of 9301a4b (Update Robot.java)
+=======
