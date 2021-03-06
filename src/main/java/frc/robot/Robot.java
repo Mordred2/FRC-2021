@@ -1067,6 +1067,7 @@ public class Robot extends TimedRobot {
       }
       allAuton();
   }
+<<<<<<< HEAD
 
   public void barrelRun(){
   double arcSpeed = .25;
@@ -1322,6 +1323,8 @@ public class Robot extends TimedRobot {
           }
       allAuton();
   }
+=======
+>>>>>>> parent of 675c2c6 (barrel)
 }
 /*these are comments
 
