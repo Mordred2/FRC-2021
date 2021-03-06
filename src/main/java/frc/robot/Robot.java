@@ -547,6 +547,7 @@ public class Robot extends TimedRobot {
     fire();
     stopShooter();
     goingUp();
+    goingDown();
     stopIndexer();
     pleaseStop();
   }
@@ -575,6 +576,9 @@ public class Robot extends TimedRobot {
   }
   public boolean goingUp(){
    return driveStick.getRawButtonPressed(5);
+  }
+  public boolean goingDown(){
+    return driveStick.getRawButtonPressed(3);
   }
   public boolean stopIndexer() {
     return shootStick.getRawButtonPressed(10);
@@ -774,64 +778,6 @@ public class Robot extends TimedRobot {
 
   public void allAuton(){
     state = SmartDashboard.getNumber("State Tester", state);
-<<<<<<< HEAD
-=======
-=======
-  public void drivePidTestInit(){
-    //PID CONTROLLERS 
-    resetDriveEncoders();
-    
-    leftMotorFPID = leftMotorF.getPIDController();
-    leftMotorBPID = leftMotorB.getPIDController(); 
-    rightMotorFPID = rightMotorF.getPIDController();
-    rightMotorBPID = rightMotorB.getPIDController();
-
-
-    leftMotorF.restoreFactoryDefaults();
-    leftMotorB.restoreFactoryDefaults();
-    rightMotorF.restoreFactoryDefaults();
-    rightMotorB.restoreFactoryDefaults();
-
-
-    drive_kP = 0.4; //0.1; 
-    drive_kI = 0; //1e-4;
-    drive_kD = 0; //1; 
-    drive_kIz = 0; 
-    drive_kFF = 0; 
-    drive_kMaxOutput = .15; 
-    drive_kMinOutput = -.15;
-    drive_encoderError = .4;
-    wheelWidth = 22;
-    setDrivePids(0,drive_kP, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, drive_kMaxOutput, drive_kMinOutput);
-    state = 0;
-    drive_state = 0;
-    resetDriveEncoders();
-    isArcRunning = false;
-  }
-  double time;
-  public void drivePidTestPeriodic(){
-    if(state == 0){
-      driveDistance(60, 0);
-      state++;
-    }
-    if(state == 1){
-      if(driveComplete() == true){
-        state++;
-     }
-  }
-    if(state == 2){
-      //turnDegrees(-180, 0);
-      
-    }
-    if(state == 3){
-      
-     // if(driveComplete() == true){
-        state++;
-      }
-  
-
->>>>>>> parent of 9301a4b (Update Robot.java)
->>>>>>> parent of 1c1bc6c (Update Robot.java)
     double p = SmartDashboard.getNumber("P Gain", drive_kP);
     double i = SmartDashboard.getNumber("I Gain", drive_kI);
     double d = SmartDashboard.getNumber("D Gain", drive_kD);
@@ -1132,7 +1078,6 @@ public class Robot extends TimedRobot {
       }
       allAuton();
   }
-<<<<<<< HEAD
 
   public void barrelRun(){
   double arcSpeed = .25;
@@ -1388,13 +1333,7 @@ public class Robot extends TimedRobot {
           }
       allAuton();
   }
-=======
->>>>>>> parent of 675c2c6 (barrel)
 }
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> parent of 1c1bc6c (Update Robot.java)
 /*these are comments
 Slalom Course
 ______________________
@@ -1446,10 +1385,4 @@ Drive forward 30 inches
 Arc left inner radius 19 .25 completion
 Course Comeplete
 ______________________
-<<<<<<< HEAD
 no more comments*/
-=======
-no more comments*/
-=======
->>>>>>> parent of 9301a4b (Update Robot.java)
->>>>>>> parent of 1c1bc6c (Update Robot.java)
