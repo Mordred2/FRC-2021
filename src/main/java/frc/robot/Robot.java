@@ -342,7 +342,10 @@ public class Robot extends TimedRobot {
   stopThePress();
   if (shooterPrimedPressed()){
     resetIndexer();
-    runShooter(-1);}
+  }
+  if(shooterPrimedReleased()){
+    runShooter(-1);
+  }
   if (fwoooopTimePressed()){
     resetIndexer();
     ballCount = ballCount + 1;
@@ -377,19 +380,20 @@ public class Robot extends TimedRobot {
   if (aimingEngaged()) {
     aim(x, aimerEncoderValue, distance);
   } 
-  else drive((-.75)*driveStick.getY()*changeFront, .75*driveStick.getX(), driveStick.getRawButton(3));
+  //else drive((-.75)*driveStick.getY()*changeFront, .75*driveStick.getX(), driveStick.getRawButton(3));
+  else drive(-.75*changeFront*((driveStick.getY())/Math.abs(driveStick.getY()))*(driveStick.getY()*(driveStick.getY())), .75*driveStick.getX(), driveStick.getRawButton(3));
 }
   //FUNCTIONS
 
   public void heShootsHeScores(double indexPosition) {
     if(shooterPrimed()){
-      wantedIndex = -.11;
+      wantedIndex = -.4;
     }
     IndexBackwards(wantedIndex, 1, indexPosition);}
 
   public void fwoooop(double indexPosition) {
     if(fwoooopTime()) {
-      wantedIndex = .40+((ballCount-1)*.25);}
+      wantedIndex = .8+((ballCount-1)*.25);}
     indexForward(wantedIndex, 1, indexPosition);
   }
 
@@ -532,6 +536,7 @@ public class Robot extends TimedRobot {
     aimingEngaged();
     shooterPrimed();
     shooterPrimedPressed();
+    shooterPrimedReleased();
     fwoooopTime();
     fwoooopTimePressed();
     fire();
@@ -550,6 +555,9 @@ public class Robot extends TimedRobot {
   }
   public boolean shooterPrimedPressed() {
     return shootStick.getRawButtonPressed(7);
+  }
+  public boolean shooterPrimedReleased() {
+    return shootStick.getRawButtonReleased(7);
   }
   public boolean fwoooopTime() {
     return shootStick.getTrigger();
