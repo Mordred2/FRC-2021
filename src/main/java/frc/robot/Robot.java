@@ -101,7 +101,7 @@ public class Robot extends TimedRobot {
   double drive_rightEncoderFFinalPosition = 0; 
   double drive_rightEncoderBFinalPosition = 0; 
   double drive_ticksPerDegree = 0.11;
-  double drive_ticksPerInch = 1;
+  double drive_ticksPerInch = .57;
   double drive_encoderError = .4;
   double changeFront;
 
@@ -762,70 +762,8 @@ public class Robot extends TimedRobot {
 
   double drivePidTestInches = 12;
 
-<<<<<<< HEAD
   public void allAuton(){
     state = SmartDashboard.getNumber("State Tester", state);
-=======
-  public void drivePidTestInit(){
-    //PID CONTROLLERS 
-    resetDriveEncoders();
-    
-    leftMotorFPID = leftMotorF.getPIDController();
-    leftMotorBPID = leftMotorB.getPIDController(); 
-    rightMotorFPID = rightMotorF.getPIDController();
-    rightMotorBPID = rightMotorB.getPIDController();
-
-
-    leftMotorF.restoreFactoryDefaults();
-    leftMotorB.restoreFactoryDefaults();
-    rightMotorF.restoreFactoryDefaults();
-    rightMotorB.restoreFactoryDefaults();
-
-
-    drive_kP = 0.4; //0.1; 
-    drive_kI = 0; //1e-4;
-    drive_kD = 0; //1; 
-    drive_kIz = 0; 
-    drive_kFF = 0; 
-    drive_kMaxOutput = .15; 
-    drive_kMinOutput = -.15;
-    drive_encoderError = .4;
-    wheelWidth = 22;
-    setDrivePids(0,drive_kP, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, drive_kMaxOutput, drive_kMinOutput);
-    state = 0;
-    drive_state = 0;
-    resetDriveEncoders();
-    isArcRunning = false;
-  }
-  double time;
-  public void drivePidTestPeriodic(){
-    if(state == 0){
-      driveDistance(60, 0);
-      state++;
-    }
-    if(state == 1){
-      if(driveComplete() == true){
-        state++;
-     }
-  }
-    if(state == 2){
-      //turnDegrees(-180, 0);
-      
-    }
-    if(state == 3){
-      
-     // if(driveComplete() == true){
-        state++;
-      }
-  
-
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> parent of 9301a4b (Update Robot.java)
-=======
->>>>>>> parent of 9301a4b (Update Robot.java)
-=======
->>>>>>> parent of 9301a4b (Update Robot.java)
     double p = SmartDashboard.getNumber("P Gain", drive_kP);
     double i = SmartDashboard.getNumber("I Gain", drive_kI);
     double d = SmartDashboard.getNumber("D Gain", drive_kD);
@@ -940,7 +878,7 @@ public class Robot extends TimedRobot {
   public void drivePidTestPeriodic(){
     double baseSpeed = .2;
     if(state == 0){
-      arcMove(19, 41, .25, .25, 0);
+      driveDistance(120, .25, 0);
       state++;
     }
     if(state == 1){
@@ -1382,9 +1320,6 @@ public class Robot extends TimedRobot {
       allAuton();
   }
 }
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 /*these are comments
 
 Slalom Course
@@ -1445,9 +1380,3 @@ Arc left inner radius 19 .25 completion
 Course Comeplete
 ______________________
 no more comments*/
-=======
->>>>>>> parent of 9301a4b (Update Robot.java)
-=======
->>>>>>> parent of 9301a4b (Update Robot.java)
-=======
->>>>>>> parent of 9301a4b (Update Robot.java)
