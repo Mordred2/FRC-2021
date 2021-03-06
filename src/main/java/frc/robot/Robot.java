@@ -367,6 +367,9 @@ public class Robot extends TimedRobot {
   }
 
   flopIt();
+  double driveSpeed = -.75;
+  double stickY = driveStick.getY();
+  double stickDirection = stickY/Math.abs(stickY);
   if(driveStick.getRawButton(2)){
     changeFront = -1;
   
@@ -377,7 +380,14 @@ public class Robot extends TimedRobot {
   if (aimingEngaged()) {
     aim(x, aimerEncoderValue, distance);
   } 
-  else drive((-.75)*driveStick.getY()*changeFront, .75*driveStick.getX(), driveStick.getRawButton(3));
+  //linear
+  //else drive(driveSpeed*stickY*changeFront, driveSpeed*driveStick.getX(), driveStick.getRawButton(3));
+  //parabolic
+  //else drive(driveSpeed*stickDirection*Math.pow(Math.abs(stickY), 2), driveSpeed*driveStick.getX(), driveStick.getRawButton(3));
+  //sqrt
+  //else drive(driveSpeed*stickDirection*Math.pow(Math.abs(stickY), .5), driveSpeed*driveStick.getX(), driveStick.getRawButton(3));
+  //Sine
+  else drive((driveSpeed/2)*stickDirection*(Math.sin(Math.PI*(stickY + 1.5) + 1)), driveSpeed*driveStick.getX(), driveStick.getRawButton(3));
 }
   //FUNCTIONS
 
@@ -1386,7 +1396,6 @@ public class Robot extends TimedRobot {
 <<<<<<< HEAD
 >>>>>>> parent of 1c1bc6c (Update Robot.java)
 /*these are comments
-
 Slalom Course
 ______________________
 Start at theredical E-2
@@ -1402,10 +1411,6 @@ Start at theredical E-2
 18.Drive 60 inches forward
 Course Complete
 ______________________
-
-
-
-
 Barrel Racing Course
 ______________________
 Start front center C-2
@@ -1421,9 +1426,6 @@ Turn 22 Degrees left
 Drive 150 inches forward
 Course Complete
 ______________________
-
-
-
 Bounce Path Course
 ______________________
 Start at C-2
