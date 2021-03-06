@@ -823,6 +823,9 @@ public class Robot extends TimedRobot {
   
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> parent of 9301a4b (Update Robot.java)
+=======
 >>>>>>> parent of 9301a4b (Update Robot.java)
 =======
 >>>>>>> parent of 9301a4b (Update Robot.java)
@@ -1384,6 +1387,7 @@ public class Robot extends TimedRobot {
 }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /*these are comments
 
 Slalom Course
@@ -1444,6 +1448,8 @@ Arc left inner radius 19 .25 completion
 Course Comeplete
 ______________________
 no more comments*/
+=======
+>>>>>>> parent of 9301a4b (Update Robot.java)
 =======
 >>>>>>> parent of 9301a4b (Update Robot.java)
 =======
