@@ -881,7 +881,7 @@ public class Robot extends TimedRobot {
   public void drivePidTestPeriodic(){
     double baseSpeed = .2;
     if(state == 0){
-      driveDistance(120, .25, 0);
+      arcMove(19, 41, .25, .25, 0);
       state++;
     }
     if(state == 1){
@@ -1067,7 +1067,6 @@ public class Robot extends TimedRobot {
       }
       allAuton();
   }
-<<<<<<< HEAD
 
   public void barrelRun(){
   double arcSpeed = .25;
@@ -1323,8 +1322,6 @@ public class Robot extends TimedRobot {
           }
       allAuton();
   }
-=======
->>>>>>> parent of 675c2c6 (barrel)
 }
 /*these are comments
 
