@@ -389,7 +389,7 @@ public class Robot extends TimedRobot {
   //Sine
   else drive((driveSpeed/2)*stickDirection*(Math.sin(Math.PI*(stickY + 1.5) + 1)), driveSpeed*driveStick.getX(), driveStick.getRawButton(3));
 }
-  //FUNCTIONS
+  //FUNCTIONS 769.1945
 
   public void heShootsHeScores(double indexPosition) {
     if(shooterPrimed()){
@@ -405,10 +405,10 @@ public class Robot extends TimedRobot {
 
 
   public void flopIt() {
-    if(shootStick.getRawButton(6) && (upSwitch.get()))
+    if(shootStick.getRawButton(6))
       flopper.set(-1);
-    else if(shootStick.getRawButton(4) && (downSwitch.get()))
-      flopper.set(.25);
+    else if(shootStick.getRawButton(4))
+      flopper.set(.5);
     else flopper.set(0);
   }
 
@@ -873,9 +873,9 @@ public class Robot extends TimedRobot {
     rightMotorF.restoreFactoryDefaults();
     rightMotorB.restoreFactoryDefaults();
 
-    drive_kP = 0.4; //0.1; 
-    drive_kI = -1; //1e-4;
-    drive_kD = 1  ; //1; 
+    drive_kP = 0.035 ; //0.1; 
+    drive_kI = 15e-7; //1e-4;
+    drive_kD = 2; //1; 
     drive_kIz = 0; 
     drive_kFF = 0; 
     drive_kMaxOutput = .3; 
@@ -947,19 +947,19 @@ public class Robot extends TimedRobot {
     speedRatio = (rCircumference/lCircumference);
     leftMax = maxSpeed;
     rightMax = maxSpeed * speedRatio;
-    rightkp = drive_kP * speedRatio; 
-    leftkp = drive_kP;
+    //rightkp = drive_kP * speedRatio; 
+    //leftkp = drive_kP;
    } else{
     speedRatio = .85 * (lCircumference/rCircumference);
     rightMax = maxSpeed;
     leftMax = maxSpeed * speedRatio; 
-    leftkp = maxSpeed * speedRatio;
-    rightkp = drive_kP;
+    //leftkp = maxSpeed * speedRatio;
+    //rightkp = drive_kP;
    }
-   leftMin = leftMax * -1;
+   leftMin = leftMax * -1; 
    rightMin = rightMax * -1;
-   setLeftPids(1,leftkp, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, leftMax, leftMin);
-   setRightPids(2,rightkp, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, rightMax, rightMin);
+   //setLeftPids(1,leftkp, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, leftMax, leftMin);
+   //setRightPids(2,rightkp, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, rightMax, rightMin);
    double leftEncoderFValue = leftEncoderF.getPosition();
    double leftEncoderBValue = leftEncoderB.getPosition();
    double rightEncoderFValue = rightEncoderF.getPosition();
