@@ -135,9 +135,8 @@ public class Robot extends TimedRobot {
   private final Color kOverYellow = ColorMatch.makeColor(0.361, 0.4, 0.2);
   private double IR = m_colorSensor.getIR();
 
-  /*private Rev2mDistanceSensor distOnboard; 
-  private Rev2mDistanceSensor distOnboard; 
-  Gyro euro = new AnalogGyro(0);*/
+  //private Rev2mDistanceSensor distOnboard; 
+  //Gyro euro = new AnalogGyro(0);
   // VARIABLES
   public boolean isCollectorOn;
   public boolean isIndexerOn;
@@ -381,19 +380,15 @@ public class Robot extends TimedRobot {
     aim(x, aimerEncoderValue, distance);
   } 
   //linear
-  //else drive(driveSpeed*stickY*changeFront, driveSpeed*driveStick.getX(), driveStick.getRawButton(3));
+  else drive(driveSpeed*stickY*changeFront, -1*driveSpeed*driveStick.getX(), driveStick.getRawButton(3));
   //parabolic
-  //else drive(driveSpeed*stickDirection*Math.pow(Math.abs(stickY), 2), driveSpeed*driveStick.getX(), driveStick.getRawButton(3));
-  //sqrt
-  //else drive(driveSpeed*stickDirection*Math.pow(Math.abs(stickY), .5), driveSpeed*driveStick.getX(), driveStick.getRawButton(3));
-  //Sine
-  else drive((driveSpeed/2)*stickDirection*(Math.sin(Math.PI*(stickY + 1.5) + 1)), driveSpeed*driveStick.getX(), driveStick.getRawButton(3));
+  //else drive(changeFront*driveSpeed*stickDirection*Math.pow(Math.abs(stickY), 2), -1*driveSpeed*driveStick.getX(), driveStick.getRawButton(3));
 }
   //FUNCTIONS
 
   public void heShootsHeScores(double indexPosition) {
     if(shooterPrimed()){
-      wantedIndex = -.11;
+      wantedIndex = -.2;
     }
     IndexBackwards(wantedIndex, 1, indexPosition);}
 
@@ -414,12 +409,12 @@ public class Robot extends TimedRobot {
 
   public void aim(double h, double aimerEncoderValue, double distance) {
     // Heading Error
-    double x = h;
+    double x = h - 2;
     double steering_adjust = 0;
-    if (x > .32)
-      steering_adjust = .235 + (.015) * Math.log(x);
-    if (x < -.32)
-      steering_adjust = -(.235 + (.015) * Math.log(-x));
+    if (x > .15)
+      steering_adjust = .2 + (.015) * Math.log(x);
+    if (x < -.15)
+      steering_adjust = -(.2 + (.015) * Math.log(-x));
     m_robotDrive.tankDrive(steering_adjust, -steering_adjust);
     if ((x < -.32) && (x > .32))
     {
@@ -468,9 +463,8 @@ public class Robot extends TimedRobot {
   
     if (match.color == kYellowTarget) {
       colorString = "Yes";
-    } else if(match.color == kOverYellow) {
-      colorString = "Over";
-    } else {
+    }
+   else {
       colorString = "No";
     }
 
@@ -954,8 +948,8 @@ public class Robot extends TimedRobot {
    }
    leftMin = leftMax * -1;
    rightMin = rightMax * -1;
-   setLeftPids(1,leftkp, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, leftMax, leftMin);
-   setRightPids(2,rightkp, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, rightMax, rightMin);
+   setLeftPids(1, leftkp, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, leftMax, leftMin);
+   setRightPids(2, rightkp, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, rightMax, rightMin);
    double leftEncoderFValue = leftEncoderF.getPosition();
    double leftEncoderBValue = leftEncoderB.getPosition();
    double rightEncoderFValue = rightEncoderF.getPosition();
@@ -1074,7 +1068,6 @@ public class Robot extends TimedRobot {
       }
       allAuton();
   }
-<<<<<<< HEAD
 
   public void barrelRun(){
   double arcSpeed = .25;
@@ -1330,8 +1323,6 @@ public class Robot extends TimedRobot {
           }
       allAuton();
   }
-=======
->>>>>>> parent of 675c2c6 (barrel)
 }
 /*these are comments
 Slalom Course
@@ -1384,4 +1375,36 @@ Drive forward 30 inches
 Arc left inner radius 19 .25 completion
 Course Comeplete
 ______________________
+Galactic Search
+______________________
+Start with the front of the back bumper along line 1 with the robot centered across the line A
+Drive forward 44 inches
+turn right 90 degrees
+if distance sensor outputs 14, Run RedB
+if distance sensor outputs 44, run RedA
+if nothing is sensed, turn left 90 degrees
+Drive forward 90 inches
+Turn right 90 degrees
+Drive Forward 60 inches
+if distance sensor outputs 14, Run BlueB
+if distance sensor ouputs 44, Run BlueA
+
+______________________
+RedB
+Positions_____________
+0. 90, 30
+1. 90, 36
+2. 146.51, 115.12
+3. 205.47, 63.93
+
+RedA
+0. 90, 30
+1. 90, 66
+2. 145.54, 115.99
+3. 
+
+
+
+
+
 no more comments*/
