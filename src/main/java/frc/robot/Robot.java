@@ -118,7 +118,7 @@ public class Robot extends TimedRobot {
   double collector_encoderError = 100;
 
   // LIMIT SWITCHES
-  DigitalInput upSwitch, downSwitch;
+  DigitalInput downswitch;
 
   // DRIVETRAIN
   //private final DifferentialDrive m_robotDrive = new DifferentialDrive(m_leftMotor, m_rightMotor);
@@ -222,8 +222,7 @@ public class Robot extends TimedRobot {
  
      ballCount = 0;
      //LIMIT SWITCHES
-     upSwitch = new DigitalInput(2);
-     downSwitch = new DigitalInput(3);
+     downswitch = new DigitalInput(2);
  
      
  
@@ -441,6 +440,7 @@ public class Robot extends TimedRobot {
   }
 
   public void aimDown(double wantedAngle, double currentAngle) {
+  if(!downswitch.get())
   aimer.set(1);
   }
 
@@ -597,7 +597,7 @@ public class Robot extends TimedRobot {
   }
 
   public void manualAim(){
-    if(shootStick.getY() >= .5 || shootStick.getY() <= -.5)
+    if(shootStick.getY() >= .5 || (shootStick.getY() <= -.5 && !downswitch.get()))
     aimer.set(-shootStick.getY());
     else aimer.set(0);
   }
