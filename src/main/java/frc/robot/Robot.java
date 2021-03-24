@@ -103,6 +103,9 @@ public class Robot extends TimedRobot {
   double drive_ticksPerDegree = 0.11;
   double drive_ticksPerInch = .57;
   double drive_encoderError = .4;
+  double sideSum = 180.5;
+  double initAngle = 33.7;
+
   double changeFront;
 
   public double collector_kP ; 
@@ -376,6 +379,8 @@ public class Robot extends TimedRobot {
   else{
     changeFront = 1;
   }
+  if(aimingReleased())
+  aimer.set(0);
   if (aimingEngaged()) {
     aim(x, aimerEncoderValue, distance);
   } 
@@ -418,31 +423,29 @@ public class Robot extends TimedRobot {
     m_robotDrive.tankDrive(steering_adjust, -steering_adjust);
     if ((x < -.32) && (x > .32))
     {
-      //adjust(distance);
+      adjust(distance);
     }
   }
 
   public void adjust(double distance) {
-    double currentWormDistance = (aimerEncoder.getDistance()/ 2.62);
-    //needs Math
-    double currentAngle = currentWormDistance;
+    double WormDistance = (aimerEncoder.getDistance()/ 2.62);
+    double currentAngle = Math.acos((sideSum - Math.pow(WormDistance, 2))/sideSum) - initAngle;
     double wantedAngle = (.1733 * ((distance*distance)/144) - 4.8*(distance/12) + 58.667);
-    if(currentAngle < wantedAngle)
+    double angleDistance = currentAngle - wantedAngle;
+    if(angleDistance > 2)
     aimUp(wantedAngle, currentAngle);
-    if(currentAngle > wantedAngle)
+    else if(angleDistance < -2)
     aimDown(wantedAngle, currentAngle);
+    else
+    aimer.set(0);
   }
 
   public void aimDown(double wantedAngle, double currentAngle) {
-    //needs Math
-  double aimerSpeed = wantedAngle - currentAngle;
-  aimer.set(aimerSpeed);
+  aimer.set(1);
   }
 
   public void aimUp(double wantedAngle, double currentAngle) {
-    //needs Math
-    double aimerSpeed = wantedAngle - currentAngle;
-    aimer.set(-aimerSpeed);
+    aimer.set(-1);
   }
 
   public void drive(double speed, double turn, boolean quickTurn) {
@@ -534,6 +537,7 @@ public class Robot extends TimedRobot {
 
   public void checkButtons(){
     aimingEngaged();
+    aimingReleased();
     shooterPrimed();
     shooterPrimedPressed();
     fwoooopTime();
@@ -548,6 +552,9 @@ public class Robot extends TimedRobot {
 
   public boolean aimingEngaged() {
     return shootStick.getRawButton(2);
+  }
+  public boolean aimingReleased() {
+    return shootStick.getRawButtonReleased(2);
   }
 
   public boolean shooterPrimed() {
@@ -867,10 +874,10 @@ public class Robot extends TimedRobot {
     rightMotorF.restoreFactoryDefaults();
     rightMotorB.restoreFactoryDefaults();
 
-    drive_kP = 0.035 ; //0.1; 
+    drive_kP = 0.045 ; //0.1; 
     drive_kI = 15e-7; //1e-4;
     drive_kD = 2; //1; 
-    drive_kIz = 0; 
+    drive_kIz = .3; 
     drive_kFF = 0; 
     drive_kMaxOutput = .3; 
     drive_kMinOutput = -.3;
@@ -886,7 +893,7 @@ public class Robot extends TimedRobot {
   public void drivePidTestPeriodic(){
     double baseSpeed = .2;
     if(state == 0){
-      driveDistance(120, .25, 0);
+      arcMove(19, 41, .25, .25);
       state++;
     }
     if(state == 1){
@@ -894,8 +901,8 @@ public class Robot extends TimedRobot {
         state++;
       }
     }
-    if(state == 7){
-      arcMove(19, 41, .25, .25, 0);
+    if(state == 2){
+      arcMove(19, 41, .25, .25);
       state++;
     }
     if(state == 3){
@@ -903,7 +910,24 @@ public class Robot extends TimedRobot {
         state++;
       }
     }
-  
+   if(state == 4){
+      arcMove(19, 41, .25, .25);
+      state++;
+    }
+    if(state == 5){
+      if(driveComplete()){
+        state++;
+      }
+    }
+    if(state == 6){
+      arcMove(19, 41, .25, .25);
+      state++;
+    }
+    if(state == 7){
+      if(driveComplete()){
+        state++;
+      }
+    }  
    allAuton();
   }
 
@@ -923,7 +947,7 @@ public class Robot extends TimedRobot {
     }
   }
   //remeber dont forget not to not add 22 to the outer wheel
- public void arcMove(double lRadius, double rRadius, double maxSpeed, double cPercent, int slot){
+ public void arcMove(double lRadius, double rRadius, double maxSpeed, double cPercent){
   double leftMin;
   double rightMin;
   double leftMax;
@@ -938,22 +962,18 @@ public class Robot extends TimedRobot {
    isArcRunning = true;
    
    if(lCircumference > rCircumference){
-    speedRatio = (rCircumference/lCircumference);
+    speedRatio = .66*(rCircumference/lCircumference);
     leftMax = maxSpeed;
     rightMax = maxSpeed * speedRatio;
-    rightkp = drive_kP * speedRatio; 
-    leftkp = drive_kP;
    } else{
-    speedRatio = .85 * (lCircumference/rCircumference);
+    speedRatio = .66*(lCircumference/rCircumference);
     rightMax = maxSpeed;
     leftMax = maxSpeed * speedRatio; 
-    leftkp = maxSpeed * speedRatio;
-    rightkp = drive_kP;
    }
    leftMin = leftMax * -1; 
    rightMin = rightMax * -1;
-   setLeftPids(1, leftkp, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, leftMax, leftMin);
-   setRightPids(2, rightkp, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, rightMax, rightMin);
+   setLeftPids(1, drive_kP, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, leftMax, leftMin);
+   setRightPids(2, drive_kP, drive_kI, drive_kD, drive_kIz, drive_kFF, drive_encoderError, rightMax, rightMin);
    double leftEncoderFValue = leftEncoderF.getPosition();
    double leftEncoderBValue = leftEncoderB.getPosition();
    double rightEncoderFValue = rightEncoderF.getPosition();
@@ -962,18 +982,18 @@ public class Robot extends TimedRobot {
    drive_leftEncoderBFinalPosition = leftEncoderBValue + (drive_ticksPerInch * lArc);
    drive_rightEncoderFFinalPosition = rightEncoderFValue - (drive_ticksPerInch * rArc);
    drive_rightEncoderBFinalPosition = rightEncoderBValue - (drive_ticksPerInch * rArc);
-   leftMotorFPID.setReference(drive_leftEncoderFFinalPosition, ControlType.kPosition, slot);
-   leftMotorBPID.setReference(drive_leftEncoderBFinalPosition, ControlType.kPosition, slot);
-   rightMotorFPID.setReference(drive_rightEncoderFFinalPosition, ControlType.kPosition, slot);
-   rightMotorBPID.setReference(drive_rightEncoderBFinalPosition, ControlType.kPosition, slot);
+   leftMotorFPID.setReference(drive_leftEncoderFFinalPosition, ControlType.kPosition, 1);
+   leftMotorBPID.setReference(drive_leftEncoderBFinalPosition, ControlType.kPosition, 1);
+   rightMotorFPID.setReference(drive_rightEncoderFFinalPosition, ControlType.kPosition, 2);
+   rightMotorBPID.setReference(drive_rightEncoderBFinalPosition, ControlType.kPosition, 2);
  }
 
   public void slalomRun(){
-    double baseSpeed = .2;
+    double baseSpeed = .25;
     double arcSpeed = .25;
     //Start With Robot Set at E2
     if(state == 0){
-      driveDistance(18, baseSpeed, 0);
+      driveDistance(20, baseSpeed, 0);
       state++;
     }
     if(state == 1){
@@ -983,7 +1003,7 @@ public class Robot extends TimedRobot {
      }
     }
     if(state == 2){
-      arcMove(19, 41, arcSpeed, .25, 0);
+      arcMove(19, 41, arcSpeed, .25);
       state++;
     }
     if(state == 3){
@@ -993,7 +1013,7 @@ public class Robot extends TimedRobot {
      }
     }
     if(state == 4){
-      arcMove(41, 19, arcSpeed, .25, 0);
+      arcMove(41, 19, arcSpeed, .25);
       state++;
     }
     if(state == 5){
@@ -1012,7 +1032,7 @@ public class Robot extends TimedRobot {
      }
     }
     if(state == 8){
-      arcMove(41, 19, arcSpeed, .25, 0);
+      arcMove(41, 19, arcSpeed, .25);
       state++;
     }
     if(state == 9){
@@ -1022,7 +1042,7 @@ public class Robot extends TimedRobot {
      }
     }
     if(state == 10){
-      arcMove(19, 41, arcSpeed, 1, 0);
+      arcMove(19, 41, arcSpeed, 1);
       state++;
     }
     if(state == 11){
@@ -1032,7 +1052,7 @@ public class Robot extends TimedRobot {
      }
     }
     if(state == 12){
-      arcMove(41, 19, arcSpeed, .25, 0);
+      arcMove(41, 19, arcSpeed, .25);
       state++;
     }
     if(state == 13){
@@ -1051,7 +1071,7 @@ public class Robot extends TimedRobot {
      }
     }
     if(state == 16){
-    arcMove(41, 19, arcSpeed, .25, 0);
+    arcMove(41, 19, arcSpeed, .25);
       state++;
     }
     if(state == 17){
@@ -1061,7 +1081,7 @@ public class Robot extends TimedRobot {
      }
     }
     if(state == 18){
-      arcMove(19, 41, arcSpeed, .25, 0);
+      arcMove(19, 41, arcSpeed, .25);
         state++;
       }
       if(state == 19){
@@ -1086,7 +1106,7 @@ public class Robot extends TimedRobot {
     }
   }
   if(state == 2){
-    arcMove(41, 19, arcSpeed, 1, 0);
+    arcMove(41, 19, arcSpeed, 1);
     state++;
   }
   if(state == 3){
@@ -1105,7 +1125,7 @@ public class Robot extends TimedRobot {
     }
   }
   if(state == 6){
-    arcMove(19, 41, arcSpeed, 1, 0);
+    arcMove(19, 41, arcSpeed, 1);
     state++;
   }
   if(state == 7){
@@ -1124,7 +1144,7 @@ public class Robot extends TimedRobot {
     }
   }
   if(state == 10){
-    arcMove(41, 19, arcSpeed, .5, 0);
+    arcMove(41, 19, arcSpeed, .5);
     state++;
   }
   if(state == 11){
@@ -1186,7 +1206,7 @@ public class Robot extends TimedRobot {
      }
     }
     if(state == 2){
-      arcMove(19, 41, arcSpeed, .25, 0);
+      arcMove(19, 41, arcSpeed, .25);
       state++;
     }
     if(state == 3){
@@ -1241,7 +1261,7 @@ public class Robot extends TimedRobot {
      }
     }
     if(state == 14){
-      arcMove(19, 41, arcSpeed, .25, 0);
+      arcMove(19, 41, arcSpeed, .25);
       state++;
     }   
     if(state == 15){
@@ -1269,7 +1289,7 @@ public class Robot extends TimedRobot {
      }
     }
     if(state == 20){
-      arcMove(41, 19, arcSpeed, -.25, 0);
+      arcMove(41, 19, arcSpeed, -.25);
         state++;
       }
       if(state == 21){
@@ -1288,7 +1308,7 @@ public class Robot extends TimedRobot {
         }
       }
       if(state == 24){
-        arcMove(41, 19, arcSpeed, -.25, 0);
+        arcMove(41, 19, arcSpeed, -.25);
           state++;
         }
         if(state == 25){
@@ -1316,7 +1336,7 @@ public class Robot extends TimedRobot {
           }
         }
         if(state == 30){
-          arcMove(19, 41, arcSpeed, .25, 0);
+          arcMove(19, 41, arcSpeed, .25);
             state++;
           }
           if(state == 31){
@@ -1381,34 +1401,13 @@ Course Comeplete
 ______________________
 Galactic Search
 ______________________
-Start with the front of the back bumper along line 1 with the robot centered across the line A
-Drive forward 44 inches
-turn right 90 degrees
-if distance sensor outputs 14, Run RedB
-if distance sensor outputs 44, run RedA
-if nothing is sensed, turn left 90 degrees
-Drive forward 90 inches
-Turn right 90 degrees
-Drive Forward 60 inches
-if distance sensor outputs 14, Run BlueB
-if distance sensor ouputs 44, Run BlueA
+start in line with the earliest ball, if RedB or BlueB, line up the back of the robot with
+  the back of the field, otherwise, line the front of the back bumpers with line 1.
+0. set velocity
+1. check if we have a ball
+2. stop robot, check current encoder values to determine how far we've moved and therefore
+  which coures is being run
 
 ______________________
-RedB
-Positions_____________
-0. 90, 30
-1. 90, 36
-2. 146.51, 115.12
-3. 205.47, 63.93
-
-RedA
-0. 90, 30
-1. 90, 66
-2. 145.54, 115.99
-3. 
-
-
-
-
 
 no more comments*/
