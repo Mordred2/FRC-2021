@@ -327,6 +327,7 @@ public class Robot extends TimedRobot {
 
   //RUN PARTS OF THE ROBOT WHEN BUTTONS PRESSED
   countBalls();
+  aimerMath();
   manualAim();
   heShootsHeScores(indexPosition);
 
@@ -442,6 +443,14 @@ public class Robot extends TimedRobot {
     aimDown(wantedAngle, currentAngle);
     else
     aimer.set(0);
+  }
+  public void aimerMath (){
+    double WormRatio = (aimerEncoder.getDistance()/ -2.350385);
+    double WormDistance = WormRatio + 5.5;
+    double currentAngle = Math.acos((sideSum - Math.pow(WormDistance, 2))/sideSum) - initAngle;
+    SmartDashboard.putNumber("Worm Ratio", WormRatio);
+    SmartDashboard.putNumber("Worm Distance", WormDistance);
+    SmartDashboard.putNumber("Aimer Angle", currentAngle);
   }
 
   public void aimDown(double wantedAngle, double currentAngle) {
