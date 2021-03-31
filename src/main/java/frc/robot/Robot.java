@@ -217,6 +217,7 @@ public class Robot extends TimedRobot {
      //CAN AND ENCODERS
      collector.restoreFactoryDefaults();
      aimerEncoder.setDistancePerPulse(1.0/650);
+
      resetIndexer();
 
  
@@ -279,6 +280,7 @@ public class Robot extends TimedRobot {
   public void teleopInit(){
     // DRIVETRAIN
     changeFront = 1;
+    aimerEncoder.reset();
      SpeedControllerGroup leftMotors;
      SpeedControllerGroup rightMotors;
      leftMotors = new SpeedControllerGroup(leftMotorF, leftMotorB);
@@ -318,6 +320,8 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Right Front Encoder", rightEncoderF.getPosition());
     SmartDashboard.putNumber("Right Back Encoder", rightEncoderB.getPosition());
     SmartDashboard.putNumber("choose front", changeFront);
+    SmartDashboard.putBoolean("down switch", downswitch.get());
+    SmartDashboard.putNumber("aimer Angle", Math.toDegrees(Math.acos((sideSum - Math.pow((aimerEncoder.getDistance()/ 2.62 + 5.5), 2))/sideSum)) - initAngle);
 
 
 
@@ -427,7 +431,8 @@ public class Robot extends TimedRobot {
   }
 
   public void adjust(double distance) {
-    double WormDistance = (aimerEncoder.getDistance()/ 2.62);
+    double WormRatio = (aimerEncoder.getDistance()/ -2.350385);
+    double WormDistance = WormRatio + 5.5;
     double currentAngle = Math.acos((sideSum - Math.pow(WormDistance, 2))/sideSum) - initAngle;
     double wantedAngle = (.1733 * ((distance*distance)/144) - 4.8*(distance/12) + 58.667);
     double angleDistance = currentAngle - wantedAngle;
@@ -440,7 +445,7 @@ public class Robot extends TimedRobot {
   }
 
   public void aimDown(double wantedAngle, double currentAngle) {
-  if(!downswitch.get())
+  if(downswitch.get())
   aimer.set(1);
   }
 
@@ -597,7 +602,7 @@ public class Robot extends TimedRobot {
   }
 
   public void manualAim(){
-    if(shootStick.getY() >= .5 || (shootStick.getY() <= -.5 && !downswitch.get()))
+    if(shootStick.getY() >= .5 || (shootStick.getY() <= -.5 && downswitch.get()))
     aimer.set(-shootStick.getY());
     else aimer.set(0);
   }
@@ -778,6 +783,7 @@ public class Robot extends TimedRobot {
   double drivePidTestInches = 12;
 
   public void allAuton(){
+    aimerEncoder.reset();
     state = SmartDashboard.getNumber("State Tester", state);
     double p = SmartDashboard.getNumber("P Gain", drive_kP);
     double i = SmartDashboard.getNumber("I Gain", drive_kI);
