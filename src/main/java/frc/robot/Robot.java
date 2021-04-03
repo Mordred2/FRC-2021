@@ -427,7 +427,7 @@ public class Robot extends TimedRobot {
     m_robotDrive.tankDrive(steering_adjust, -steering_adjust);
     if ((x < -.32) && (x > .32))
     {
-      adjust(distance);
+   //   adjust(distance);
     }
   }
 
@@ -447,7 +447,7 @@ public class Robot extends TimedRobot {
   public void aimerMath (){
     double WormRatio = (aimerEncoder.getDistance()/ -2.350385);
     double WormDistance = WormRatio + 5.5;
-    double currentAngle = Math.acos((sideSum - Math.pow(WormDistance, 2))/sideSum) - initAngle;
+    double currentAngle = Math.toDegrees(Math.acos((sideSum - Math.pow(WormDistance, 2))/sideSum)) - initAngle;
     SmartDashboard.putNumber("Worm Ratio", WormRatio);
     SmartDashboard.putNumber("Worm Distance", WormDistance);
     SmartDashboard.putNumber("Aimer Angle", currentAngle);
